@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 200">
+  <!-- 배경 -->
+  <rect width="300" height="200" fill="#f0f0f0"/>
+  
+  <!-- 이미지 아이콘 -->
+  <path d="M120 80 L180 80 L180 120 L120 120 Z" fill="none" stroke="#999" stroke-width="4"/>
+  <path d="M130 95 A5 5 0 1 1 130 94.9" fill="#999"/>
+  <path d="M120 120 L140 100 L160 110 L180 80" stroke="#999" stroke-width="4" fill="none"/>
+  
+  <!-- 텍스트 -->
+  <text x="150" y="150" font-family="Arial" font-size="14" text-anchor="middle" fill="#666">
+    이미지를 찾을 수 없습니다
+  </text>
+</svg>
