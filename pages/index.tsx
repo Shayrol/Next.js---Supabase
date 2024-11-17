@@ -1,5 +1,101 @@
+import { useEffect, useRef, useState } from "react";
+import * as S from "../styles/userBoards.styles";
+import { GetServerSidePropsContext } from "next";
+import { getRelativeTime } from "@/src/commons/date/getRelativeTime";
+import {
+  fetchBoards,
+  IBoards,
+} from "@/src/components/commons/hooks/reactQuery/query/boards";
+import { useRouter } from "next/router";
+
+interface IBoardsProps {
+  initialData: IBoards[];
+}
+
+const tags = [
+  { name: "전체" },
+  { name: "자유" },
+  { name: "유머" },
+  { name: "질문" },
+];
+
+export default function UserBoards({ initialData }: IBoardsProps): JSX.Element {
+  const [data, setData] = useState<IBoards[]>(initialData);
+  const router = useRouter();
+  const isFirstMount = useRef(true);
+  const page = Number(router.query.page) || 0;
+
+  useEffect(() => {
+    // 첫 마운트 시 실행 X
+    if (isFirstMount.current) {
+      isFirstMount.current = false;
+      return;
+    }
+  }, [router.query.page]);
+
+  const testQuery = async (tag: string) => {
+    const query = await fetchBoards(page, tag);
+    setData(query);
+  };
+
+  return (
+    <S.Wrap>
+      <S.BoardsWrap>
+        <S.BoardsList>
+          {data?.map((el) => (
+            <S.BoardItem key={el.id} onClick={() => console.log("실행")}>
+              <S.Id>{el.id}</S.Id> {/* 추후에 추천수 표기 예정 */}
+              <S.BoardInfoWrap>
+                <S.TitleWrap>
+                  <S.Title>{el.title}</S.Title>
+                </S.TitleWrap>
+                <S.UserWrap>
+                  <S.Tag>
+                    {/* 커뮤니티에 자유, 유머, 질문, 영상 등 분류 예정 */}
+                    {el.tag}
+                  </S.Tag>
+                  <S.Created>{getRelativeTime(el.created_at)}</S.Created>
+                  <S.User>{el.user_id}</S.User>
+                </S.UserWrap>
+              </S.BoardInfoWrap>
+              {/* 이미지 부분 */}
+              <S.Img src="/images/placeholders/placeholder-image.svg" />
+            </S.BoardItem>
+          ))}
+        </S.BoardsList>
+
+        {/* <nav>
+        <button disabled={page === 0} onClick={() => setPage(page - 1)}>
+          이전
+        </button>
+        <button onClick={() => setPage(page + 1)}>다음</button>
+      </nav> */}
+      </S.BoardsWrap>
+      {tags.map((el) => (
+        <div>
+          <div onClick={() => testQuery(el.name)}>{el.name}</div>
+        </div>
+      ))}
+    </S.Wrap>
+  );
+}
+
+export const getServerSideProps = async (
+  context: GetServerSidePropsContext
+) => {
+  const page = Number(context.query.page) || 0;
+  const tag = context.query.tag || "전체";
+
+  const data = await fetchBoards(page, tag);
+
+  return {
+    props: {
+      initialData: data || [],
+    },
+  };
+};
+
 // import UserBoard from "@/src/components/units/UserBoard/userBoard";
-import UserBoards from "@/src/components/units/UserBoards/userBoards";
 // import { AuthError, createClient, Provider, User } from "@supabase/supabase-js";
 // import { ChangeEvent, FormEvent, MouseEvent, useEffect, useState } from "react";
 
@@ -11,15 +107,6 @@ import UserBoards from "@/src/components/units/UserBoards/userBoards";
 // const supabaseUrl = "https://jhkgsclggcdyvqleruhq.supabase.co";
 // const supabaseKey = String(process.env.NEXT_PUBLIC_SUPABASE_KEY);
 // const supabase = createClient(supabaseUrl, supabaseKey);
-
-export default function MainPage() {
-  return (
-    <>
-      {/* <UserBoard /> */}
-      <UserBoards />
-    </>
-  );
-}
 
 // export default function SupabasesPage() {
 // const [userLogin, setUserLogin] = useState<User | null>(null);

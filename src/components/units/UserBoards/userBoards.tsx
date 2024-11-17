@@ -1,13 +1,18 @@
 import { useState } from "react";
-import { useBoards } from "../../commons/hooks/reactQuery/query/boards";
-import * as S from "./userBoards.styles";
+import {
+  fetchBoards,
+  IBoards,
+} from "../../commons/hooks/reactQuery/query/boards";
+import * as S from "../../../../styles/userBoards.styles";
+import { GetServerSidePropsContext } from "next";
 import { getRelativeTime } from "@/src/commons/date/getRelativeTime";
 
-export default function UserBoards() {
-  const [page, setPage] = useState<number>(0);
-  const { data, refetch } = useBoards(page);
-  console.log("data: ", data);
-  console.log("page: ", page);
+interface IBoardsProps {
+  initialData: IBoards[];
+}
+
+export default function UserBoards({ initialData }: IBoardsProps): JSX.Element {
+  const [data, setData] = useState<IBoards[]>(initialData);
 
   return (
     <S.Wrap>
@@ -37,13 +42,27 @@ export default function UserBoards() {
           </S.TBody>
         </S.BoardsTable>
 
-        <nav>
-          <button disabled={page === 0} onClick={() => setPage(page - 1)}>
-            이전
-          </button>
-          <button onClick={() => setPage(page + 1)}>다음</button>
-        </nav>
+        {/* <nav>
+        <button disabled={page === 0} onClick={() => setPage(page - 1)}>
+          이전
+        </button>
+        <button onClick={() => setPage(page + 1)}>다음</button>
+      </nav> */}
       </S.BoardsWrap>
     </S.Wrap>
   );
 }
+
+export const getServerSideProps = async (
+  context: GetServerSidePropsContext
+) => {
+  const page = Number(context.query.page) || 0;
+
+  const data = await fetchBoards(page);
+
+  return {
+    props: {
+      initialData: data || [],
+    },
+  };
+};

@@ -1,16 +1,15 @@
 import styled from "@emotion/styled";
 
 export const Wrap = styled.section`
-  /* border: 1px solid red; */
   width: 100%;
   display: flex;
+  flex-direction: column;
   justify-content: center;
   margin-top: 100px;
 `;
 
-// 게시글 전체
+// 게시글 전체 (main 태그로 변경)
 export const BoardsWrap = styled.main`
-  /* border: 1px solid green; */
   width: 1200px;
   display: flex;
   flex-direction: column;
@@ -19,23 +18,19 @@ export const BoardsWrap = styled.main`
   padding: 0 60px;
 `;
 
-// 게시글 구분
-export const BoardsTable = styled.table`
-  /* border: 1px solid red; */
+// 게시글 리스트 (section -> ul로 변경, 게시글은 list로 표현)
+export const BoardsList = styled.ul`
   max-width: 900px;
   width: 100%;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
+  list-style: none; /* 리스트 항목의 기본 스타일 제거 */
+  padding: 0;
 `;
 
-export const TBody = styled.tbody`
-  border: 1px solid #ebeef1;
-  border-bottom: none;
-  width: 100%;
-`;
-
-export const TBodyTR = styled.tr`
+// 각 게시글 아이템 (li로 변경)
+export const BoardItem = styled.li`
   border-bottom: 1px solid #ebeef1;
   width: 100%;
   display: flex;
@@ -48,60 +43,50 @@ export const TBodyTR = styled.tr`
   }
 `;
 
-export const BoardInfoWrap = styled.section`
-  /* border: 1px solid red; */
+export const BoardInfoWrap = styled.div`
   display: flex;
   flex-direction: column;
   flex: 1;
   margin: 0 12px;
 `;
 
-export const Id = styled.td`
-  /* border: 1px solid red; */
+export const Id = styled.div`
   background-color: #ebeef1;
   display: flex;
   justify-content: center;
   align-items: center;
   width: 48px;
   height: 48px;
-  /* margin: 0 12px; */
 `;
-export const TitleWrap = styled.td`
-  /* border: 1px solid red; */
-`;
+
+export const TitleWrap = styled.div``;
+
 export const Title = styled.h2`
   font-size: 14px;
 `;
 
-export const Body = styled.td`
-  overflow: hidden; /* 넘치는 내용 숨김 */
-  white-space: nowrap; /* 텍스트를 한 줄로 처리 */
-  text-overflow: ellipsis;
+export const Tag = styled.div`
+  font-size: 14px;
+  color: #8b99a6;
 `;
 
-export const UserWrap = styled.section`
+export const UserWrap = styled.div`
   display: flex;
 `;
 
-export const Created = styled.td`
-  /* border: 1px solid red; */
+export const Created = styled.div`
   font-size: 14px;
   color: #8b99a6;
   padding-left: 8px;
 `;
 
-export const User = styled.td`
-  /* border: 1px solid red; */
-  overflow: hidden; /* 넘치는 내용 숨김 */
-  white-space: nowrap; /* 텍스트를 한 줄로 처리 */
-  text-overflow: ellipsis;
+export const User = styled.div`
   font-size: 14px;
   color: #8b99a6;
   padding-left: 8px;
 `;
 
 export const Img = styled.img`
-  /* border: 1px solid red; */
   width: 93px;
   height: 60px;
 `;

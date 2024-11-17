@@ -23,8 +23,11 @@ export default function Header(): JSX.Element {
         </Link>
         <S.Nav>
           {headerNav.map((el) => (
-            <S.UL>
-              <S.LI currentPage={String(el.path) === String(router.asPath)}>
+            <S.UL key={el.name}>
+              <S.LI
+                currentPage={String(el.path) === String(router.asPath)}
+                key={el.name}
+              >
                 <Link href={el.path} style={{ padding: "4px" }}>
                   {el.name}
                 </Link>
