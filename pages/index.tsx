@@ -153,7 +153,7 @@ export default function UserBoards({
         <Pagination01 pagination={pagination} />
       </S.BoardsWrap>
       {tags.map((el) => (
-        <div>
+        <div key={el.name}>
           <div onClick={() => testQuery(el.name)}>{el.name}</div>
         </div>
       ))}
@@ -173,7 +173,10 @@ export default function UserBoards({
 export const getServerSideProps = async (
   context: GetServerSidePropsContext
 ) => {
-  const page = Number(context.query.page) || 0;
+  // 데이터 요청은 page 0번 부터 가져오고 pagination은 1번 부터 가져와서 이렇게 해줘야 했음..
+  const page =
+    Number(context.query.page) === 0 ? 0 : Number(context.query.page) - 1 || 0;
+
   const tag = context.query.tag || "전체";
 
   const { data, count } = await fetchBoards(page, tag);
