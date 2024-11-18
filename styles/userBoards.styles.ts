@@ -1,3 +1,5 @@
+// pages/index.tsx 사용중
+
 import styled from "@emotion/styled";
 
 export const Wrap = styled.section`
@@ -5,12 +7,16 @@ export const Wrap = styled.section`
   display: flex;
   flex-direction: column;
   justify-content: center;
+  align-items: center;
   margin-top: 100px;
+  border: 4px solid red;
 `;
 
 // 게시글 전체 (main 태그로 변경)
 export const BoardsWrap = styled.main`
-  width: 1200px;
+  border: 4px solid green;
+  max-width: 1200px; /* 최대 너비 설정 */
+  width: 100%;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -20,6 +26,7 @@ export const BoardsWrap = styled.main`
 
 // 게시글 리스트 (section -> ul로 변경, 게시글은 list로 표현)
 export const BoardsList = styled.ul`
+  border: 4px solid blue;
   max-width: 900px;
   width: 100%;
   margin: 0 auto;

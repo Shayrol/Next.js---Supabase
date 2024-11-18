@@ -13,32 +13,66 @@ export interface IBoards {
 export const fetchBoards = async (
   page: number,
   tag: string | string[] | undefined
-): Promise<IBoards[]> => {
+): Promise<{ data: IBoards[]; count: number | null }> => {
   console.log("page: ", page);
   const start = page * 5;
   const end = start + 4;
-  let query = supabase
+
+  // 데이터 가져오기 쿼리
+  let dataQuery = supabase
     .from("page")
-    .select("*")
+    .select("*") // 필요한 컬럼만 선택
     .order("created_at", { ascending: false })
     .range(start, end);
 
+  // 전체 개수를 가져오기 위한 쿼리
+  let countQuery = supabase.from("page").select("id", { count: "exact" }); // 단순히 count만 계산
+
   if (tag !== "전체") {
-    query = query.eq("tag", tag);
+    // 태그 조건 적용
+    dataQuery = dataQuery.eq("tag", tag);
+    countQuery = countQuery.eq("tag", tag); // count도 동일 조건 적용
   }
 
-  const { data, error } = await query;
+  // 데이터 및 count 결과 가져오기
+  const { data, error: dataError } = await dataQuery;
+  const { count, error: countError } = await countQuery;
 
-  if (error) {
-    console.error("Error fetching data:", error);
-    return [];
+  // 에러 처리
+  if (dataError || countError) {
+    console.error("Error fetching data:", dataError || countError);
+    return { data: [], count: null };
   }
 
-  return data;
-
-  // if (error) throw new Error(error.message);
-  // return data as IBoards[];
+  return { data: data as IBoards[], count };
 };
+
+// export const fetchBoards = async (
+//   page: number,
+//   tag: string | string[] | undefined
+// ): Promise<{ data: IBoards[]; count: number | null }> => {
+//   console.log("page: ", page);
+//   const start = page * 5;
+//   const end = start + 4;
+//   let query = supabase
+//     .from("page")
+//     .select("*", { count: "exact" })
+//     .order("created_at", { ascending: false })
+//     .range(start, end);
+
+//   if (tag !== "전체") {
+//     query = query.eq("tag", tag);
+//   }
+
+//   const { data, count, error } = await query;
+
+//   if (error) {
+//     console.error("Error fetching data:", error);
+//     return { data: [], count: null };
+//   }
+
+//   return { data, count };
+// };
 
 // export const useBoards = (page: number) => {
 //   return useQuery<IBoards[]>({

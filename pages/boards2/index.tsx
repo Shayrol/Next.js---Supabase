@@ -25,7 +25,7 @@ export default function TestBoards2Page({
 
   const testQuery = async (tag: string) => {
     const query = await fetchBoards(page, tag);
-    setData(query);
+    // setData(query);
   };
 
   console.log("data: ", data);

@@ -7,9 +7,21 @@ import {
   IBoards,
 } from "@/src/components/commons/hooks/reactQuery/query/boards";
 import { useRouter } from "next/router";
+import Pagination01, {
+  IPaginationProps,
+} from "@/src/components/pagination/01/pagination";
+import { supabase } from "@/src/components/commons/Supabase";
+import { AuthError, Provider, User } from "@supabase/supabase-js";
 
 interface IBoardsProps {
   initialData: IBoards[];
+  count: number | null;
+}
+
+// queryString을 통해 현재, 전체 페이지 확인 - pagination
+interface IPage {
+  currentPage: number;
+  totalPages: number;
 }
 
 const tags = [
@@ -19,11 +31,28 @@ const tags = [
   { name: "질문" },
 ];
 
-export default function UserBoards({ initialData }: IBoardsProps): JSX.Element {
-  const [data, setData] = useState<IBoards[]>(initialData);
+export default function UserBoards({
+  initialData,
+  count,
+}: IBoardsProps): JSX.Element {
+  const [data, setData] = useState<IBoardsProps>({
+    count: count,
+    initialData: initialData,
+  });
   const router = useRouter();
   const isFirstMount = useRef(true);
-  const page = Number(router.query.page) || 0;
+  const page = Number(router.query.page) || 1;
+  const tag = router.query.tag || "전체";
+  const limit = 5;
+
+  const pagination: IPage = {
+    currentPage: page,
+    totalPages: Math.ceil((data.count ?? 5) / limit),
+  };
+
+  console.log("data: ", data);
+  console.log("count: ", data.count);
+  console.log("pagination Count: ", Math.ceil(data.count ?? 10 / limit));
 
   useEffect(() => {
     // 첫 마운트 시 실행 X
@@ -31,18 +60,72 @@ export default function UserBoards({ initialData }: IBoardsProps): JSX.Element {
       isFirstMount.current = false;
       return;
     }
+
+    const resultData = async () => {
+      const result = await fetchBoards(page - 1, tag);
+      setData({ count: result.count, initialData: result.data });
+    };
+    resultData();
   }, [router.query.page]);
 
   const testQuery = async (tag: string) => {
-    const query = await fetchBoards(page, tag);
-    setData(query);
+    const result = await fetchBoards(page - 1, tag);
+    console.log("result: ", result);
+    setData({ count: result.count, initialData: result.data });
+    void router.push(
+      {
+        pathname: router.pathname,
+        // query: { ...router.query, tag, page: undefined },
+        query: { tag },
+      },
+      undefined,
+      { shallow: true }
+    );
   };
+
+  // fhfhfhfhfhfhf로그인
+
+  type DataType =
+    | { provider: Provider; url: string }
+    | { provider: Provider; url: null };
+  type ErrorType = AuthError | null;
+
+  const [userLogin, setUserLogin] = useState<User | null>(null);
+  const signInWithGithub = async () => {
+    const { data }: { data: DataType; error: ErrorType } =
+      await supabase.auth.signInWithOAuth({
+        provider: "github",
+        options: {
+          redirectTo: "http://localhost:3000/",
+        },
+      });
+    console.log("data: ", data);
+  };
+  // 로그인 상태 확인
+  const getUser = async () => {
+    const session = await supabase.auth.getUser();
+    console.log("session: ", session.data.user);
+    setUserLogin(session.data.user);
+  };
+  // 로그아웃
+  const signOutWithGithub = async () => {
+    const { error } = await supabase.auth.signOut();
+    console.log("error: ", error);
+    if (!error) {
+      setUserLogin(null);
+    }
+  };
+
+  useEffect(() => {
+    getUser(); // 로그인 상태 확인
+    // refreshHistory(); // 게시물 데이터 가져오기
+  }, []);
 
   return (
     <S.Wrap>
       <S.BoardsWrap>
         <S.BoardsList>
-          {data?.map((el) => (
+          {data.initialData?.map((el) => (
             <S.BoardItem key={el.id} onClick={() => console.log("실행")}>
               <S.Id>{el.id}</S.Id> {/* 추후에 추천수 표기 예정 */}
               <S.BoardInfoWrap>
@@ -54,7 +137,11 @@ export default function UserBoards({ initialData }: IBoardsProps): JSX.Element {
                     {/* 커뮤니티에 자유, 유머, 질문, 영상 등 분류 예정 */}
                     {el.tag}
                   </S.Tag>
-                  <S.Created>{getRelativeTime(el.created_at)}</S.Created>
+                  <S.Created>
+                    {el.created_at
+                      ? getRelativeTime(el.created_at)
+                      : "Loading.."}
+                  </S.Created>
                   <S.User>{el.user_id}</S.User>
                 </S.UserWrap>
               </S.BoardInfoWrap>
@@ -63,19 +150,22 @@ export default function UserBoards({ initialData }: IBoardsProps): JSX.Element {
             </S.BoardItem>
           ))}
         </S.BoardsList>
-
-        {/* <nav>
-        <button disabled={page === 0} onClick={() => setPage(page - 1)}>
-          이전
-        </button>
-        <button onClick={() => setPage(page + 1)}>다음</button>
-      </nav> */}
+        <Pagination01 pagination={pagination} />
       </S.BoardsWrap>
       {tags.map((el) => (
         <div>
           <div onClick={() => testQuery(el.name)}>{el.name}</div>
         </div>
       ))}
+      {userLogin === null ? (
+        <button id="login" onClick={signInWithGithub}>
+          Login
+        </button>
+      ) : (
+        <button id="logout" onClick={signOutWithGithub}>
+          Logout
+        </button>
+      )}
     </S.Wrap>
   );
 }
@@ -86,11 +176,12 @@ export const getServerSideProps = async (
   const page = Number(context.query.page) || 0;
   const tag = context.query.tag || "전체";
 
-  const data = await fetchBoards(page, tag);
+  const { data, count } = await fetchBoards(page, tag);
 
   return {
     props: {
       initialData: data || [],
+      count: count || null,
     },
   };
 };
