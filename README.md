@@ -39,3 +39,20 @@ HTML 태그 요소 table, tr, td 에서 ul, li, section, div 등의 요소로 �
 4. 로그인 구현
 5. 상세페이지, 등록, 수정, 삭제 구현
 6. 추천, 조회수, 댓글, 대댓글 구현
+
+11/18 <br>
+pagination 추가 + 해당 태그 별 게시물 총 개수 불러옴 <br>
+queryString의 page, tag를 통해 해당 값으로 SSR 요청 <br>
+pagination은 CSR 요청으로 router.push의 shallow: true 를 통해 url만 수정을 하고 <br>
+useEffect를 통해 의존성 배열의 router.query의 tag, page 변경이 되면 실행하도록 했음 <br>
+
+
+1. 로그인을 구현을 했지만 SSR을 통해 유저 정보를 관리를 하기 위해 _app.tsx 컴포넌트에 getServerSidePage를 통해 요청을 하고 Layout에 props로 넘겨준다. 또는 상태관리를 통해 정보를 전역으로 저장을 한다.
+2. 로그인 페이지, 회원가입 페이지(회원가입 보류), 소셜로그인 카카오, 깃허브, 구글 등 추가하기 - 로그인 관리는 Layout의 Heaber로
+3. 사이트 탭 - 게시물의 태그 구성인 "전체", "자유", "유머", "질문"으로 구성되어있는데 스타일 입히기
+
+<br>
+이후 해야할 것<br>
+1. 게시물 검색 기능 like={%"text"%} 이걸로 단어 검색 할 수 있다함
+2. 게시글 등록 시 작성자가 user_id로 출력이 되는데 로그인 시 데이터를 해당 table에 저장을하고 user_id가 있는 table과 참조하도록 해서 user 정보를 불러오도록 하기
+3. 등록, 수정, 삭제 구현 및 페이지 만들기 (인증된 유저만 가능하게)
