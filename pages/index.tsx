@@ -92,13 +92,18 @@ export default function UserBoards({
 
   const [userLogin, setUserLogin] = useState<User | null>(null);
   const signInWithGithub = async () => {
-    const { data }: { data: DataType; error: ErrorType } =
-      await supabase.auth.signInWithOAuth({
-        provider: "github",
-        options: {
-          redirectTo: "http://localhost:3000/",
-        },
-      });
+    // 현재 페이지 URL을 가져옵니다.
+    const currentUrl = window.location.href;
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: "github",
+      options: {
+        redirectTo: currentUrl, // 현재 URL로 리디렉션 설정
+      },
+    });
+    if (error) {
+      console.error("로그인 에러: ", error);
+      return;
+    }
     console.log("data: ", data);
   };
   // 로그인 상태 확인
@@ -121,9 +126,29 @@ export default function UserBoards({
     // refreshHistory(); // 게시물 데이터 가져오기
   }, []);
 
+  const color = "#a3a3a3";
+
   return (
     <S.Wrap>
+      <S.AsideWrap>
+        <S.AsideNav>
+          <S.AsideUl>
+            {tags.map((el) => (
+              <S.AsideLi key={el.name}>
+                <S.AsideBtn
+                  onClick={() => testQuery(el.name)}
+                  activeOption={router.query.tag === el.name}
+                >
+                  {el.name}
+                </S.AsideBtn>
+              </S.AsideLi>
+            ))}
+          </S.AsideUl>
+        </S.AsideNav>
+      </S.AsideWrap>
+
       <S.BoardsWrap>
+        <div style={{ width: "100%", height: "70px" }}>옵션 및 검색 공간</div>
         <S.BoardsList>
           {data.initialData?.map((el) => (
             <S.BoardItem key={el.id} onClick={() => console.log("실행")}>
@@ -152,12 +177,8 @@ export default function UserBoards({
         </S.BoardsList>
         <Pagination01 pagination={pagination} />
       </S.BoardsWrap>
-      {tags.map((el) => (
-        <div key={el.name}>
-          <div onClick={() => testQuery(el.name)}>{el.name}</div>
-        </div>
-      ))}
-      {userLogin === null ? (
+
+      {/* {userLogin === null ? (
         <button id="login" onClick={signInWithGithub}>
           Login
         </button>
@@ -165,7 +186,7 @@ export default function UserBoards({
         <button id="logout" onClick={signOutWithGithub}>
           Logout
         </button>
-      )}
+      )} */}
     </S.Wrap>
   );
 }
