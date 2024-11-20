@@ -60,7 +60,6 @@ const Pagination01 = (props: IPaginationProps) => {
     <S.Wrap>
       {/* 이전 그룹 버튼 */}
       {start > 1 && <S.Button onClick={handlePrevGroup}>이전</S.Button>}
-
       {/* 페이지 번호 버튼들 */}
       {pageNumbers.map((pageNum) => (
         <S.PageNum

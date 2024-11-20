@@ -9,12 +9,13 @@ export const Wrap = styled.header`
   align-items: center;
   position: sticky;
   top: 0;
-  background-color: #ffeebc;
+  /* background-color: #ffeebc; */
+  background-color: #16ae81;
   z-index: 100;
 `;
 
 export const HeaderWrap = styled.div`
-  border: 1px solid blue;
+  /* border: 1px solid blue; */
   width: 1200px;
   height: 3rem;
   display: flex;
@@ -54,8 +55,10 @@ export const LI = styled.li<{ currentPage: boolean }>`
   margin: 0 10px;
   background-color: ${({ currentPage }) =>
     currentPage ? "#00000033" : "transparent"};
+  color: ${({ currentPage }) => (currentPage ? "#fff" : "#000000")};
   :hover {
     background-color: #00000033;
+    color: #fff;
   }
 `;
 

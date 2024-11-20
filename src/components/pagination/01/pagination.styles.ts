@@ -13,17 +13,17 @@ export const Wrap = styled.div`
 `;
 
 export const Button = styled.button`
-  padding: 8px 12px;
-  border: 1px solid #3b82f6;
+  padding: 4px 12px;
+  border: 1px solid #d1d5db;
   border-radius: 4px;
   background-color: transparent;
-  color: #3b82f6;
+  color: #4b5563;
   font-weight: 500;
   cursor: pointer;
   transition: background-color 0.3s, color 0.3s;
 
   &:hover {
-    background-color: #3b82f6;
+    background-color: #16ae81;
     color: white;
   }
 
@@ -35,21 +35,23 @@ export const Button = styled.button`
 `;
 
 export const PageNum = styled.button<IPage>`
-  padding: 8px 12px;
+  padding: 4px 12px;
   border: 1px solid
-    ${(props) => (props.currentPage === props.pageNum ? "#3b82f6" : "#d1d5db")};
+    ${(props) => (props.currentPage === props.pageNum ? "#16ae81" : "#d1d5db")};
   border-radius: 4px;
   background-color: ${(props) =>
-    props.currentPage === props.pageNum ? "#3b82f6" : "white"};
+    props.currentPage === props.pageNum ? "#16ae81" : "white"};
   color: ${(props) =>
     props.currentPage === props.pageNum ? "white" : "#4b5563"};
   font-weight: ${(props) =>
     props.currentPage === props.pageNum ? "600" : "400"};
   cursor: pointer;
   transition: background-color 0.3s, color 0.3s;
+  pointer-events: ${(props) =>
+    props.currentPage === props.pageNum ? "none" : "auto"};
 
   &:hover {
-    background-color: #3b82f6;
+    background-color: #16ae81;
     color: white;
   }
 `;

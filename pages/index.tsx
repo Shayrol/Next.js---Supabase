@@ -1,29 +1,25 @@
 import { useEffect, useRef, useState } from "react";
 import * as S from "../styles/userBoards.styles";
 import { GetServerSidePropsContext } from "next";
-import { getRelativeTime } from "@/src/commons/date/getRelativeTime";
 import {
   fetchBoards,
   IBoards,
 } from "@/src/components/commons/hooks/reactQuery/query/boards";
 import { useRouter } from "next/router";
-import Pagination01, {
-  IPaginationProps,
-} from "@/src/components/pagination/01/pagination";
-import { supabase } from "@/src/components/commons/Supabase";
-import { AuthError, Provider, User } from "@supabase/supabase-js";
+import Pagination01 from "@/src/components/pagination/01/pagination";
 
 interface IBoardsProps {
   initialData: IBoards[];
   count: number | null;
 }
 
-// queryString을 통해 현재, 전체 페이지 확인 - pagination
+// pagination 타입 - 현재 페이지, 전체 페이지 개수
 interface IPage {
   currentPage: number;
   totalPages: number;
 }
 
+// 커뮤니티 사이트 탭
 const tags = [
   { name: "전체" },
   { name: "자유" },
@@ -50,16 +46,15 @@ export default function UserBoards({
     totalPages: Math.ceil((data.count ?? 5) / limit),
   };
 
-  console.log("data: ", data);
-  console.log("count: ", data.count);
-  console.log("pagination Count: ", Math.ceil(data.count ?? 10 / limit));
-
+  // 페이지 이동시 - tag 유지 및 페이지 이동
   useEffect(() => {
     // 첫 마운트 시 실행 X
     if (isFirstMount.current) {
       isFirstMount.current = false;
       return;
     }
+
+    if (!router.query.page) return;
 
     const resultData = async () => {
       const result = await fetchBoards(page - 1, tag);
@@ -68,63 +63,20 @@ export default function UserBoards({
     resultData();
   }, [router.query.page]);
 
-  const testQuery = async (tag: string) => {
-    const result = await fetchBoards(page - 1, tag);
-    console.log("result: ", result);
+  // 켜뮤니티 사이드 탭 - 전체, 자유, 유머, 질문
+  const AsideQuery = async (tag: string) => {
+    const result = await fetchBoards(0, tag);
+
     setData({ count: result.count, initialData: result.data });
     void router.push(
       {
         pathname: router.pathname,
-        // query: { ...router.query, tag, page: undefined },
         query: { tag },
       },
       undefined,
       { shallow: true }
     );
   };
-
-  // fhfhfhfhfhfhf로그인
-
-  type DataType =
-    | { provider: Provider; url: string }
-    | { provider: Provider; url: null };
-  type ErrorType = AuthError | null;
-
-  const [userLogin, setUserLogin] = useState<User | null>(null);
-  const signInWithGithub = async () => {
-    // 현재 페이지 URL을 가져옵니다.
-    const currentUrl = window.location.href;
-    const { data, error } = await supabase.auth.signInWithOAuth({
-      provider: "github",
-      options: {
-        redirectTo: currentUrl, // 현재 URL로 리디렉션 설정
-      },
-    });
-    if (error) {
-      console.error("로그인 에러: ", error);
-      return;
-    }
-    console.log("data: ", data);
-  };
-  // 로그인 상태 확인
-  const getUser = async () => {
-    const session = await supabase.auth.getUser();
-    console.log("session: ", session.data.user);
-    setUserLogin(session.data.user);
-  };
-  // 로그아웃
-  const signOutWithGithub = async () => {
-    const { error } = await supabase.auth.signOut();
-    console.log("error: ", error);
-    if (!error) {
-      setUserLogin(null);
-    }
-  };
-
-  useEffect(() => {
-    getUser(); // 로그인 상태 확인
-    // refreshHistory(); // 게시물 데이터 가져오기
-  }, []);
 
   const color = "#a3a3a3";
 
@@ -136,8 +88,8 @@ export default function UserBoards({
             {tags.map((el) => (
               <S.AsideLi key={el.name}>
                 <S.AsideBtn
-                  onClick={() => testQuery(el.name)}
-                  activeOption={router.query.tag === el.name}
+                  onClick={() => AsideQuery(el.name)}
+                  activeOption={(router.query.tag ?? "전체") === el.name}
                 >
                   {el.name}
                 </S.AsideBtn>
@@ -164,10 +116,11 @@ export default function UserBoards({
                   </S.Tag>
                   <S.Created>
                     {el.created_at
-                      ? getRelativeTime(el.created_at)
+                      ? // ? getRelativeTime(el.created_at)
+                        el.created_at
                       : "Loading.."}
                   </S.Created>
-                  <S.User>{el.user_id}</S.User>
+                  <S.User>{el.user?.name}</S.User>
                 </S.UserWrap>
               </S.BoardInfoWrap>
               {/* 이미지 부분 */}
@@ -177,16 +130,6 @@ export default function UserBoards({
         </S.BoardsList>
         <Pagination01 pagination={pagination} />
       </S.BoardsWrap>
-
-      {/* {userLogin === null ? (
-        <button id="login" onClick={signInWithGithub}>
-          Login
-        </button>
-      ) : (
-        <button id="logout" onClick={signOutWithGithub}>
-          Logout
-        </button>
-      )} */}
     </S.Wrap>
   );
 }

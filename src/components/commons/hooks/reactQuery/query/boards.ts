@@ -1,4 +1,5 @@
 // import { useQuery } from "@tanstack/react-query";
+import { getRelativeTime } from "@/src/commons/date/getRelativeTime";
 import { supabase } from "../../../Supabase";
 
 export interface IBoards {
@@ -8,6 +9,12 @@ export interface IBoards {
   created_at: string;
   user_id: string;
   tag: string | string[] | undefined;
+  user: {
+    id: string;
+    name: string;
+    email: string;
+    picture: string | null;
+  };
 }
 
 export const fetchBoards = async (
@@ -21,7 +28,7 @@ export const fetchBoards = async (
   // 데이터 가져오기 쿼리
   let dataQuery = supabase
     .from("page")
-    .select("*") // 필요한 컬럼만 선택
+    .select(`*, user:users(id, name, email, picture)`)
     .order("created_at", { ascending: false })
     .range(start, end);
 
@@ -37,6 +44,7 @@ export const fetchBoards = async (
   // 데이터 및 count 결과 가져오기
   const { data, error: dataError } = await dataQuery;
   const { count, error: countError } = await countQuery;
+  console.log("fetchBoards: ", data);
 
   // 에러 처리
   if (dataError || countError) {
@@ -44,7 +52,12 @@ export const fetchBoards = async (
     return { data: [], count: null };
   }
 
-  return { data: data as IBoards[], count };
+  const transformedData = data.map((board) => ({
+    ...board,
+    created_at: getRelativeTime(board.created_at),
+  }));
+
+  return { data: transformedData as IBoards[], count };
 };
 
 // export const fetchBoards = async (

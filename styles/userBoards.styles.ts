@@ -30,7 +30,7 @@ export const BoardsWrap = styled.main`
   justify-content: center;
   align-items: center;
   gap: 10px;
-  padding-bottom: 20px;
+  padding-bottom: 10px;
   /* padding: 0 60px; */
 `;
 
@@ -163,5 +163,6 @@ export const AsideBtn = styled.button<AsideLiProps>`
   color: ${({ activeOption }) => (activeOption ? "#16ae81" : "#000000")};
   :hover {
     background-color: #ebeef1;
+    color: #16ae81;
   }
 `;
