@@ -83,6 +83,12 @@ useEffect를 통해 의존성 배열의 router.query의 tag, page 변경이 되�
 ## 11/21 마무리 결과
 ![testBoards2](https://github.com/user-attachments/assets/c8505e95-4034-49ac-b5e4-421d7abbf131) <br>
 
+문제해결 <br>
+게시물 등록 후 시간 표시를 초 단위 부터 시작을 해 새로고침을 하면 서버와 클라의 값이 달라 에러가 발생함.. 하이드레이션 과정에서 문제 생김 <br>
+<div>{시간계산함수(el.created_at)}</div> 이런식으로 구현을 했음 <br>
+문제가 생긴 이후 <div>{el.created_at}</div> 이렇게 해주고 <br>
+fetchQuery 함수에 return 하기전 미리 UTC 시간 로컬 시간 기준으로 변경해서 return 해서 해결함.
+
 
 문제점? <br>
 1. 서버 데이터 캐싱을 하지 않아 매번 data 요청이 일어남 -- 현재 page 데이터와 count 데이터로 2개의 data 요청이 계속 일어남
