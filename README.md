@@ -103,3 +103,14 @@ fetchQuery 함수에 return 하기전 미리 UTC 시간 로컬 시간 기준으�
 5. 게시물 댓글, 대댓글 - table 구현 머리 아픔..
 6. 최신, 인기, 검색 구현 - 게시물 목록 id로 표시되어 있는데 인기(추천) 순으로 변경 예정 - 안 급함
 7. 유저 닉네임 변경 및 프로필 사진 변경 구현 - 스토리지 생성하고 또 테이블 참조하는거 빼고는 쉬움 - 안 급함
+
+
+11/22 <br>
+소셜 로그인 시 #해시가 붙는 현상이 있었음 <br>
+하루종일 해매다 Docs를 보고 다시 해본 결과 해결함 <br>
+이유는 import { createClient } from "@supabase/supabase-js"; 으로 DB 연동으로 data 가져오거나 소셜 로그인을 진행 했는데 이는 <br>
+CSR에서 인증이 필요없는 데이터를 가져오는 경우에서만 사용됨 즉 소셜 로그인은 되지만 #인 생긴 이유인 듯 함 <br>
+그래서 "@supabase/ssr"을 설치를 해서 createBrowserClient를 사용을 해야 함 <br>
+처음 사용했던 createClient와 동일하게 사용하면 됨 csr, ssr 요청이 되며 일반적인 데이터 요청에 사용 됨 <br>
+로그인 후 유저 데이터, 유저가 등록한 게시물, 댓글, 로그인이 필요한 페이지 등의 데이터는 import { createServerClient, serializeCookieHeader } from "@supabase/ssr"; 을 사용해서 <br>
+server-props.ts (Docs) 참고 - 이는 SSR 요청에서만 이루어짐
