@@ -1,90 +1,133 @@
-// 이미지 아이콘 클릭 시 모달 창 생성 - 설명문
+import React, { useState } from "react";
+import styled from "@emotion/styled";
+import { User, UserMetadata } from "@supabase/supabase-js";
 
-import React, { useEffect } from "react";
-import * as S from "./login.styles";
-import { supabase } from "../../Supabase";
+const Container = styled.div`
+  position: relative;
+`;
 
-interface IModal {
-  onClose: () => void;
-}
+const MenuButton = styled.button`
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  z-index: 1000;
+  background-color: #333;
+  color: #fff;
+  border: none;
+  padding: 10px 15px;
+  cursor: pointer;
+  border-radius: 4px;
 
-const social = ["kakao", "google", "github"];
+  &:hover {
+    background-color: #555;
+  }
+`;
 
-const Modal = ({ onClose }: IModal) => {
-  const signInWithGithub = async () => {
-    // 현재 페이지 URL을 가져옵니다.
-    const currentUrl = window.location.href;
-    const { data, error } = await supabase.auth.signInWithOAuth({
-      provider: "github",
-      options: {
-        // 현재 URL로 리디렉션 설정
-        redirectTo: currentUrl,
-      },
-    });
-    if (error) {
-      console.error("로그인 에러: ", error);
-      return;
+const SideTab = styled.div<{ isOpen: boolean }>`
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: ${({ isOpen }) => (isOpen ? "350px" : "0")};
+  height: 100dvh;
+  padding: 10px 20px;
+  background-color: #141414c3;
+  color: #fff;
+  overflow-x: hidden;
+  transition: width 0.3s ease;
+  z-index: 999;
+
+  @media (max-width: 768px) {
+    width: ${({ isOpen }) => (isOpen ? "100%" : "0")};
+    height: 100dvh;
+  }
+`;
+
+const MenuList = styled.ul`
+  list-style: none;
+  padding: 20px;
+  margin: 0;
+
+  & li {
+    margin: 15px 0;
+  }
+
+  & a {
+    color: #fff;
+    text-decoration: none;
+    font-size: 18px;
+
+    &:hover {
+      text-decoration: underline;
     }
-  };
+  }
+`;
 
-  // useEffect(() => {
-  //   if (window.location.hash) {
-  //     // 페이지를 새로고침하지 않고 해시를 제거
-  //     window.history.pushState(
-  //       {},
-  //       document.title,
-  //       window.location.pathname + window.location.search
-  //     );
-  //   }
-  //   console.log("#삭제 실행");
-  // }, []);
+// 웹뷰 유저 정보 - 이름
+const UserName = styled.span`
+  display: block;
+  border-radius: 5px;
+  padding: 0 3px;
+  cursor: pointer;
 
+  :hover {
+    background-color: #00000033;
+    color: #fff;
+  }
+
+  @media (max-width: 768px) {
+    display: none;
+  }
+`;
+
+// 반응형 유저 정보 - 이미지
+const ResponsiveImage = styled.img`
+  display: none;
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+
+  @media (max-width: 768px) {
+    /* border: 1px solid red; */
+    display: block;
+    margin-left: 10px;
+  }
+`;
+
+export default function HamburgerMenu({
+  userLogin,
+}: {
+  userLogin: User | null;
+}) {
+  const [isOpen, setIsOpen] = useState(false);
+
+  const toggleMenu = () => setIsOpen((prev) => !prev);
+  const userData = userLogin?.user_metadata;
   return (
-    // <ModalOverlay onClick={onClose}>
-    <S.ModalOverlay>
-      <S.ModalContent onClick={(e) => e.stopPropagation()}>
-        <S.CloseButton onClick={onClose}>X</S.CloseButton>
-        <S.SectionWrap>
-          <S.LoginTitle>로그인</S.LoginTitle>
-          <S.Form>
-            <S.LoginWrap>
-              <S.InputWrap>
-                <S.InputID type="text" placeholder=" " id="userID" />
-                <S.Label htmlFor="userID">ID</S.Label>
-              </S.InputWrap>
-              <S.InputWrap>
-                <S.InputID type="password" placeholder=" " id="userPW" />
-                <S.Label htmlFor="userPW">PASSWORD</S.Label>
-              </S.InputWrap>
-            </S.LoginWrap>
-            <S.LoginButtonWrap>
-              <S.FormButton onClick={onClose}>로그인</S.FormButton>
-              <S.FormButton onClick={onClose}>회원가입</S.FormButton>
-            </S.LoginButtonWrap>
-          </S.Form>
-          <S.LineWrap>
-            <S.Line />
-            <S.Or>OR</S.Or>
-            <S.Line />
-          </S.LineWrap>
-          <S.SocialLogin>
-            <S.SocialLogoWrap_kakao>
-              <img src={`/images/logo/social-logo/kakao-mark.png`} />
-            </S.SocialLogoWrap_kakao>
-            <S.SocialLogoWrap_google>
-              <img
-                src={`/images/logo/social-logo/google-mark.png`}
-                style={{ width: "35px" }}
-              />
-            </S.SocialLogoWrap_google>
-            <S.SocialLogoWrap_github onClick={signInWithGithub}>
-              <img src={`/images/logo/social-logo/github-mark.png`} />
-            </S.SocialLogoWrap_github>
-          </S.SocialLogin>
-        </S.SectionWrap>
-      </S.ModalContent>
-    </S.ModalOverlay>
+    <Container>
+      <UserName onClick={toggleMenu}>
+        {userData?.name ?? userData?.user_name}
+      </UserName>
+      <ResponsiveImage
+        onClick={toggleMenu}
+        src="/images/logo/menu-logo/user-mark.svg"
+      />
+      <SideTab isOpen={isOpen}>
+        <div onClick={toggleMenu}>X</div>
+        <MenuList>
+          <li>
+            <a href="#home">Home</a>
+          </li>
+          <li>
+            <a href="#about">About</a>
+          </li>
+          <li>
+            <a href="#services">Services</a>
+          </li>
+          <li>
+            <a href="#contact">Contact</a>
+          </li>
+        </MenuList>
+      </SideTab>
+    </Container>
   );
-};
-
-export default Modal;
+}

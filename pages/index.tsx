@@ -7,6 +7,17 @@ import {
 } from "@/src/components/commons/hooks/reactQuery/query/boards";
 import { useRouter } from "next/router";
 import Pagination01 from "@/src/components/pagination/01/pagination";
+import Head from "next/head";
+import Link from "next/link";
+
+interface ISSRProps {
+  initialData: IBoards[];
+  count: number | null;
+  metaData: {
+    metaTag: string;
+    metaPage: number;
+  };
+}
 
 interface IBoardsProps {
   initialData: IBoards[];
@@ -30,23 +41,26 @@ const tags = [
 export default function UserBoards({
   initialData,
   count,
-}: IBoardsProps): JSX.Element {
+  metaData,
+}: ISSRProps): JSX.Element {
   const [data, setData] = useState<IBoardsProps>({
     count: count,
     initialData: initialData,
   });
+  const [meta, setMeta] = useState(metaData);
+
   const router = useRouter();
   const isFirstMount = useRef(true);
   const page = Number(router.query.page) || 1;
   const tag = router.query.tag || "전체";
-  const limit = 5;
+  const limit = 10;
 
   const pagination: IPage = {
     currentPage: page,
-    totalPages: Math.ceil((data.count ?? 5) / limit),
+    totalPages: Math.ceil((data.count ?? 10) / limit),
   };
 
-  // 페이지 이동시 - tag 유지 및 페이지 이동
+  // 페이지 이동시 - tag 유지 상태로 페이지 이동
   useEffect(() => {
     // 첫 마운트 시 실행 X
     if (isFirstMount.current) {
@@ -68,6 +82,7 @@ export default function UserBoards({
     const result = await fetchBoards(0, tag);
 
     setData({ count: result.count, initialData: result.data });
+    setMeta({ metaTag: tag, metaPage: 0 });
     void router.push(
       {
         pathname: router.pathname,
@@ -82,6 +97,37 @@ export default function UserBoards({
 
   return (
     <S.Wrap>
+      {/* <Head> */}
+      {/* 동적 메타 태그 */}
+      <title>{`${meta.metaTag} 게시판`}</title>
+      <meta
+        name="description"
+        content={`${meta.metaTag} 커뮤니티 게시판. 다양한 주제의 게시글을 확인하세요.`}
+      />
+
+      {/* Open Graph 메타 태그 */}
+      {/* <meta property="og:title" content={`${meta.metaTag} 게시판`} /> */}
+      {/* <meta
+          property="og:description"
+          content={`${meta.metaTag} 커뮤니티 게시판. 다양한 주제의 게시글을 확인하세요.`}
+        /> */}
+      {/* <meta property="og:type" content="website" /> */}
+      {/* <meta
+          property="og:url"
+          content={`https://your-domain.com${router.asPath}`}
+        /> */}
+      {/* <meta property="og:image" content="/path/to/default-og-image.jpg" /> */}
+
+      {/* Twitter Card */}
+      {/* <meta name="twitter:card" content="summary_large_image" /> */}
+      {/* <meta name="twitter:title" content={`${meta.metaTag} 게시판`} /> */}
+      {/* <meta
+          name="twitter:description"
+          content={`${meta.metaTag} 커뮤니티 게시판. 다양한 주제의 게시글을 확인하세요.`}
+        /> */}
+      {/* <meta name="twitter:image" content="/path/to/default-og-image.jpg" /> */}
+      {/* </Head> */}
+
       <S.AsideWrap>
         <S.AsideNav>
           <S.AsideUl>
@@ -100,7 +146,9 @@ export default function UserBoards({
       </S.AsideWrap>
 
       <S.BoardsWrap>
-        <div style={{ width: "100%", height: "70px" }}>옵션 및 검색 공간</div>
+        <div style={{ width: "100%", height: "70px" }}>
+          옵션 및 검색 공간<Link href={`/boardWriter`}>게시글 작성</Link>
+        </div>
         <S.BoardsList>
           {data.initialData?.map((el) => (
             <S.BoardItem key={el.id} onClick={() => console.log("실행")}>
@@ -145,10 +193,15 @@ export const getServerSideProps = async (
 
   const { data, count } = await fetchBoards(page, tag);
 
+  const metaData = {
+    metaTag: tag,
+    metaPage: page,
+  };
   return {
     props: {
       initialData: data || [],
       count: count || null,
+      metaData: metaData,
     },
   };
 };

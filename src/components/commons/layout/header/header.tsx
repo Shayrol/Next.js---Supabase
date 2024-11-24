@@ -2,9 +2,12 @@ import Link from "next/link";
 import * as S from "./header.styles";
 import { useRouter } from "next/router";
 import Modal from "../login/login";
-import { useEffect, useState } from "react";
-import { supabase } from "../../Supabase";
-import { UserMetadata } from "@supabase/supabase-js";
+import { useEffect, useRef, useState } from "react";
+import { User, UserMetadata } from "@supabase/supabase-js";
+// import { GetServerSidePropsContext } from "next";
+// import { createSClient } from "@/utils/supabase/server-props";
+import { createClient } from "@/utils/supabase/component";
+import HamburgerMenu from "../login/login";
 
 const headerNav = [
   { name: "커뮤니티", path: "/" },
@@ -15,49 +18,40 @@ const headerNav = [
 
 export default function Header(): JSX.Element {
   const router = useRouter();
+  const supabase = createClient();
+  const [userLogin, setUserLogin] = useState<User | null>(null);
   // const color = #fff1c6;
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [userLogin, setUserLogin] = useState<UserMetadata | null>(null);
-
-  const openModal = () => {
-    setIsModalOpen(true);
-  };
-
-  const closeModal = () => {
-    setIsModalOpen(false);
-  };
+  console.log("userLogin: ", userLogin);
 
   // 로그인 상태 확인 / 유저 정보 저장
   const getUser = async () => {
     const session = await supabase.auth.getUser();
     const result = session.data.user;
-    console.log("session-(header): ", session.data.user?.user_metadata);
-    console.log("session-(header): ", session.data.user);
+    console.log("login Data: ", result);
     setUserLogin(result);
 
     // 로그인 상태에서만 user table에 저장 실행 - (table에 이미 해당 id가 있으면 유지)
-    // if (result) {
-    //   const { data, error } = await supabase.from("users").upsert({
-    //     name: result?.user_metadata.user_name,
-    //     email: result?.email,
-    //     picture: null,
-    //     created_at: result?.created_at,
-    //     last_sign_in_at: result?.last_sign_in_at,
-    //     updated_at: result?.updated_at,
-    //   });
+    if (result) {
+      const { data, error } = await supabase.from("users").upsert({
+        name: result?.user_metadata.user_name ?? result?.user_metadata.name,
+        email: result?.email,
+        picture: result?.user_metadata.picture ?? null,
+        created_at: result?.created_at,
+        last_sign_in_at: result?.last_sign_in_at,
+        updated_at: result?.updated_at,
+      });
 
-    //   // console.log("login_user_data: ", data);
-    //   if (error) {
-    //     console.log("error: ", error);
-    //   }
-    // }
+      if (error) {
+        console.log("error: ", error);
+      }
+    }
   };
 
   // 로그아웃
-  const signOutWithGithub = async () => {
-    const { error } = await supabase.auth.signOut();
-    console.log("error: ", error);
+  const signOutWith = async () => {
+    // const { error } = await supabase.auth.signOut();
+    const { error } = await supabase.auth.signOut({ scope: "local" });
 
     if (!error) {
       setUserLogin(null);
@@ -66,16 +60,6 @@ export default function Header(): JSX.Element {
 
   useEffect(() => {
     getUser();
-    // 로그인이 안됨...
-    // // 소셜 로그인 후 #(헤쉬) 생성으로 삭제 처리함
-    // if (window.location.hash) {
-    //   // 페이지를 새로고침하지 않고 해시를 제거
-    //   window.history.pushState(
-    //     {},
-    //     document.title,
-    //     window.location.pathname + window.location.search
-    //   );
-    // }
   }, []);
 
   return (
@@ -84,9 +68,14 @@ export default function Header(): JSX.Element {
         <Link href="/" passHref>
           <S.LogoWrap>
             <S.Logo src="/images/logo/bee-logo.svg" />
+            <S.LogoWhite src="/images/logo/bee-logo-white.svg" />
           </S.LogoWrap>
         </Link>
         <S.Nav>
+          <S.HamburgerNav>
+            <S.ResponsiveImage src="/images/logo/menu-logo/hamburger-menu-mark.svg" />
+            {/* <S.ResponsiveImage src="/images/logo/menu-logo/user-mark.svg" /> */}
+          </S.HamburgerNav>
           {headerNav.map((el) => (
             <S.UL key={el.name}>
               <S.LI
@@ -101,13 +90,13 @@ export default function Header(): JSX.Element {
           ))}
         </S.Nav>
         {userLogin ? (
-          <div onClick={signOutWithGithub}>logout</div>
+          <HamburgerMenu userLogin={userLogin} />
         ) : (
-          <S.Login onClick={() => openModal()}>Login</S.Login>
+          <S.LoginWrap>
+            <Link href={"/login"}>Login</Link>
+          </S.LoginWrap>
         )}
       </S.HeaderWrap>
-
-      {isModalOpen && <Modal onClose={closeModal} />}
     </S.Wrap>
   );
 }

@@ -1,6 +1,7 @@
 // import { useQuery } from "@tanstack/react-query";
 import { getRelativeTime } from "@/src/commons/date/getRelativeTime";
-import { supabase } from "../../../Supabase";
+import { createClient } from "@/utils/supabase/component";
+// import { supabase } from "../../../Supabase";
 
 export interface IBoards {
   id: number;
@@ -21,9 +22,10 @@ export const fetchBoards = async (
   page: number,
   tag: string | string[] | undefined
 ): Promise<{ data: IBoards[]; count: number | null }> => {
-  console.log("page: ", page);
-  const start = page * 5;
-  const end = start + 4;
+  // console.log("page: ", page);
+  const supabase = createClient();
+  const start = page * 10;
+  const end = start + 9;
 
   // 데이터 가져오기 쿼리
   let dataQuery = supabase

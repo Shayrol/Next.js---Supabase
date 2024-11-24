@@ -61,10 +61,12 @@ export const BoardItem = styled.li`
 `;
 
 export const BoardInfoWrap = styled.div`
+  /* border: 1px solid red; */
   display: flex;
   flex-direction: column;
-  flex: 1;
   margin: 0 12px;
+  width: 100%;
+  min-width: 0;
 `;
 
 export const Id = styled.div`
@@ -72,35 +74,53 @@ export const Id = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 48px;
+  min-width: 38px;
   height: 48px;
 `;
 
-export const TitleWrap = styled.div``;
+export const TitleWrap = styled.div`
+  /* border: 1px solid blue; */
+  width: 100%;
+  flex: 1;
+  min-width: 0;
+`;
 
 export const Title = styled.h2`
   font-size: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+  margin: 0;
 `;
 
 export const Tag = styled.div`
   font-size: 14px;
   color: #8b99a6;
+  white-space: nowrap;
 `;
 
 export const UserWrap = styled.div`
+  /* border: 1px solid red; */
   display: flex;
+  min-width: 0;
 `;
 
 export const Created = styled.div`
   font-size: 14px;
   color: #8b99a6;
   padding-left: 8px;
+  white-space: nowrap;
 `;
 
 export const User = styled.div`
   font-size: 14px;
   color: #8b99a6;
   padding-left: 8px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-right: 3px;
 `;
 
 export const Img = styled.img`
@@ -110,6 +130,7 @@ export const Img = styled.img`
 
 // 게시글 사이드 탭
 export const AsideWrap = styled.aside`
+  /* border: 1px solid red; */
   border: 1px solid #ebeef1;
   box-shadow: 0px 0px 10px -5px #a3a3a3;
   max-width: 200px;
@@ -118,10 +139,15 @@ export const AsideWrap = styled.aside`
   justify-content: center;
   align-items: start;
   padding: 5px;
+  top: 60px;
+  position: sticky;
+
+  @media (max-width: 1044px) {
+    display: none;
+  }
 `;
 
 export const AsideNav = styled.nav`
-  /* border: 1px solid red; */
   width: 100%;
 `;
 
