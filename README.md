@@ -1,4 +1,4 @@
-11/13 <br>
+![image](https://github.com/user-attachments/assets/01fa82b9-a6bd-4baf-a623-62b02db1737a)![image](https://github.com/user-attachments/assets/27e9cb2e-84b0-46c2-a486-132cdb5cd600)11/13 <br>
 Next.js 에서 Supabase 사용하기 <br>
 기존 파이어베이스보다 다루기 쉬운듯... <br>
 로그인 / 로그아웃 <br>
@@ -114,3 +114,30 @@ CSR에서 인증이 필요없는 데이터를 가져오는 경우에서만 사�
 처음 사용했던 createClient와 동일하게 사용하면 됨 csr, ssr 요청이 되며 일반적인 데이터 요청에 사용 됨 <br>
 로그인 후 유저 데이터, 유저가 등록한 게시물, 댓글, 로그인이 필요한 페이지 등의 데이터는 import { createServerClient, serializeCookieHeader } from "@supabase/ssr"; 을 사용해서 <br>
 server-props.ts (Docs) 참고 - 이는 SSR 요청에서만 이루어짐
+
+11/24 <br>
+소셜 로그인 #(해시) 붙는 현상 해결 및 로그인 페이지 + 로그인 전용 페이지 구현(간략하게 접속만 구현함 / ssr로 유저 정보 확인 후 로그인 유저가 아니면 /login 페이지로 리다이렉트 함) <br>
+반응형 디자인 구현함 / 헤더의 햄버거 버튼 및 유저 정보 클릭시 사이드 탭 등 구현 <br>
+
+# 11/24 마무리 결과
+![testBoards-login2](https://github.com/user-attachments/assets/bf520e59-d0e4-4a89-9e21-2351d494ae76) <br>
+↑ 모바일 환경 로그인 페이지 <br>
+![testBoards3](https://github.com/user-attachments/assets/7d720a35-01d3-42f7-b758-ce7f5692aa64) <br>
+↑ 웹 메인 페이지 <br>
+![testBoards4](https://github.com/user-attachments/assets/dee58b73-0958-4987-ba5a-55356cd48096) <br>
+↑ 테블릿 메인 페이지 <br>
+![testBoards5](https://github.com/user-attachments/assets/e73aadf1-db65-44d2-83e3-a596d07d45ec) <br>
+↑ 모바일 메인 페이지 <br>
+
+이후 해야할 것 <br>
+1. 등록, 수정, 삭제 구현 - 급함
+2. 로그인 후 유저 상태 정보 사이드 탭 구현 - 버튼만 구현하면 됨(로그아웃, 내정보 페이지, 등등)
+3. 모바일 반응형 Nav 리스트 햄버거 버튼 기능 구현 - 모바일 환경 메뉴 탭 생성하기
+4. 게시물 상세 페이지 - 급함
+5. 게시물 댓글, 대댓글 - table 구현 머리 아픔..
+6. 최신, 인기, 검색 구현 - 게시물 목록 id로 표시되어 있는데 인기(추천) 순으로 변경 예정 - 안 급함
+7. 유저 닉네임 변경 및 프로필 사진 변경 구현 - 스토리지 생성하고 또 테이블 참조하는거 빼고는 쉬움 - 안 급함
+
+
+
+
