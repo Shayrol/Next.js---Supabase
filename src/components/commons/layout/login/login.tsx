@@ -1,133 +1,84 @@
-import React, { useState } from "react";
-import styled from "@emotion/styled";
-import { User, UserMetadata } from "@supabase/supabase-js";
-
-const Container = styled.div`
-  position: relative;
-`;
-
-const MenuButton = styled.button`
-  position: fixed;
-  top: 10px;
-  left: 10px;
-  z-index: 1000;
-  background-color: #333;
-  color: #fff;
-  border: none;
-  padding: 10px 15px;
-  cursor: pointer;
-  border-radius: 4px;
-
-  &:hover {
-    background-color: #555;
-  }
-`;
-
-const SideTab = styled.div<{ isOpen: boolean }>`
-  position: fixed;
-  top: 0;
-  right: 0;
-  width: ${({ isOpen }) => (isOpen ? "350px" : "0")};
-  height: 100dvh;
-  padding: 10px 20px;
-  background-color: #141414c3;
-  color: #fff;
-  overflow-x: hidden;
-  transition: width 0.3s ease;
-  z-index: 999;
-
-  @media (max-width: 768px) {
-    width: ${({ isOpen }) => (isOpen ? "100%" : "0")};
-    height: 100dvh;
-  }
-`;
-
-const MenuList = styled.ul`
-  list-style: none;
-  padding: 20px;
-  margin: 0;
-
-  & li {
-    margin: 15px 0;
-  }
-
-  & a {
-    color: #fff;
-    text-decoration: none;
-    font-size: 18px;
-
-    &:hover {
-      text-decoration: underline;
-    }
-  }
-`;
-
-// 웹뷰 유저 정보 - 이름
-const UserName = styled.span`
-  display: block;
-  border-radius: 5px;
-  padding: 0 3px;
-  cursor: pointer;
-
-  :hover {
-    background-color: #00000033;
-    color: #fff;
-  }
-
-  @media (max-width: 768px) {
-    display: none;
-  }
-`;
-
-// 반응형 유저 정보 - 이미지
-const ResponsiveImage = styled.img`
-  display: none;
-  width: 24px;
-  height: 24px;
-  cursor: pointer;
-
-  @media (max-width: 768px) {
-    /* border: 1px solid red; */
-    display: block;
-    margin-left: 10px;
-  }
-`;
+import React, { Dispatch, SetStateAction, useState } from "react";
+import { User } from "@supabase/supabase-js";
+import Link from "next/link";
+import * as S from "./login.styles";
+import { createClient } from "@/utils/supabase/component";
 
 export default function HamburgerMenu({
   userLogin,
+  setUserLogin,
 }: {
   userLogin: User | null;
+  setUserLogin: Dispatch<SetStateAction<User | null>>;
 }) {
   const [isOpen, setIsOpen] = useState(false);
 
   const toggleMenu = () => setIsOpen((prev) => !prev);
   const userData = userLogin?.user_metadata;
+  const supabase = createClient();
+
+  // 로그아웃
+  const signOutWith = async () => {
+    // scope: "local"은 사용자가 특정 기기에서만 로그아웃함 (다른 기기에 로그인 유지됨)
+    const { error } = await supabase.auth.signOut({ scope: "local" });
+
+    if (!error) {
+      setUserLogin(null);
+      setIsOpen((prev) => !prev);
+    }
+  };
+
+  const color = "#cecece4a";
+
   return (
-    <Container>
-      <UserName onClick={toggleMenu}>
-        {userData?.name ?? userData?.user_name}
-      </UserName>
-      <ResponsiveImage
-        onClick={toggleMenu}
-        src="/images/logo/menu-logo/user-mark.svg"
-      />
-      <SideTab isOpen={isOpen}>
-        <div onClick={toggleMenu}>X</div>
-        <MenuList>
-          <li>
-            <a href="#home">Home</a>
-          </li>
-          <li>
-            <a href="#about">About</a>
-          </li>
-          <li>
-            <a href="#services">Services</a>
-          </li>
-          <li>
-            <a href="#contact">Contact</a>
-          </li>
-        </MenuList>
-      </SideTab>
-    </Container>
+    <S.Container>
+      {userData ? (
+        <>
+          <S.UserName onClick={toggleMenu}>
+            {userData?.name ?? userData?.user_name}
+          </S.UserName>
+          <S.ResponsiveImage
+            onClick={toggleMenu}
+            src="/images/logo/menu-logo/user-mark.svg"
+          />
+        </>
+      ) : (
+        <>
+          <S.LoginBtn>
+            <Link href={"/login"}>Login</Link>
+          </S.LoginBtn>
+          <S.ResponsiveImage
+            onClick={toggleMenu}
+            src="/images/logo/menu-logo/user-mark.svg"
+          />
+        </>
+      )}
+      <S.SideTabWrap isOpen={isOpen}>
+        <S.SideTab isOpen={isOpen} userLogin={userLogin === null}>
+          {/* <div onClick={toggleMenu}>X</div> */}
+          <S.CloseImg src="/images/logo/close.png" onClick={toggleMenu} />
+          <S.MenuList>
+            <S.SideTabUserName>
+              {userData ? userData.name : "로그인이 필요합니다."}
+            </S.SideTabUserName>
+            <li>
+              {userData ? (
+                <S.SideTabSignWrap onClick={signOutWith}>
+                  <S.SideTabLogoutBtn>로그아웃</S.SideTabLogoutBtn>
+                  <S.SideTabSignImg src="/images/logo/logout.png" />
+                </S.SideTabSignWrap>
+              ) : (
+                <S.SideTabSignWrap>
+                  <Link href={"/login"} style={{ fontWeight: "600" }}>
+                    로그인
+                  </Link>
+                  <S.SideTabSignImg src="/images/logo/login.png" />
+                </S.SideTabSignWrap>
+              )}
+            </li>
+          </S.MenuList>
+        </S.SideTab>
+      </S.SideTabWrap>
+    </S.Container>
   );
 }

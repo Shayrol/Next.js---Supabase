@@ -48,16 +48,6 @@ export default function Header(): JSX.Element {
     }
   };
 
-  // 로그아웃
-  const signOutWith = async () => {
-    // const { error } = await supabase.auth.signOut();
-    const { error } = await supabase.auth.signOut({ scope: "local" });
-
-    if (!error) {
-      setUserLogin(null);
-    }
-  };
-
   useEffect(() => {
     getUser();
   }, []);
@@ -89,13 +79,12 @@ export default function Header(): JSX.Element {
             </S.UL>
           ))}
         </S.Nav>
-        {userLogin ? (
+        <HamburgerMenu userLogin={userLogin} setUserLogin={setUserLogin} />
+        {/* {userLogin ? (
           <HamburgerMenu userLogin={userLogin} />
         ) : (
-          <S.LoginWrap>
-            <Link href={"/login"}>Login</Link>
-          </S.LoginWrap>
-        )}
+          <HamburgerMenu userLogin={userLogin} />
+        )} */}
       </S.HeaderWrap>
     </S.Wrap>
   );

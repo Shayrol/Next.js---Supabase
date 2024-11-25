@@ -37,6 +37,7 @@ export const SectionWrap = styled.section`
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  padding: 0 30px;
   max-width: 460px;
   width: 100%;
   height: 530px;

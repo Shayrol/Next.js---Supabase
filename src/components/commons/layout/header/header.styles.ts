@@ -13,6 +13,10 @@ export const Wrap = styled.header`
   /* background-color: #16ae81; */
   background-color: #46cfa7;
   z-index: 100;
+
+  @media (max-width: 768px) {
+    position: static;
+  }
 `;
 
 export const HeaderWrap = styled.div`
@@ -106,9 +110,9 @@ export const LI = styled.li<{ currentPage: boolean }>`
 
 // Login - 따로 컴포트로 분리할지 생각중
 export const LoginWrap = styled.div`
-  border: 1px solid red;
+  /* border: 1px solid red; */
   border-radius: 5px;
-  padding: 0 5px;
+  margin: 0 5px;
 
   :hover {
     background-color: #00000033;

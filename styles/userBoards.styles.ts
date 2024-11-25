@@ -14,7 +14,8 @@ export const Wrap = styled.section`
   flex-direction: row;
   justify-content: center;
   align-items: start;
-  margin-top: 100px;
+  /* margin-top: 100px; */
+  /* margin-top: 5px; */
   gap: 10px;
   box-sizing: border-box;
 `;
@@ -31,13 +32,16 @@ export const BoardsWrap = styled.main`
   align-items: center;
   gap: 10px;
   padding-bottom: 10px;
-  /* padding: 0 60px; */
+
+  @media (max-width: 1044px) {
+    max-width: 100%;
+  }
 `;
 
 // 게시글 리스트 (section -> ul로 변경, 게시글은 list로 표현)
 export const BoardsList = styled.ul`
-  border: 1px solid #ebeef1;
-  max-width: 900px;
+  /* border: 1px solid #ebeef1; */
+  /* max-width: 900px; */
   width: 100%;
   margin: 0 auto;
   display: flex;
@@ -54,6 +58,7 @@ export const BoardItem = styled.li`
   justify-content: space-between;
   align-items: center;
   padding: 8px 12px;
+  cursor: pointer;
 
   :hover {
     background-color: #ebeef1;
@@ -133,13 +138,14 @@ export const AsideWrap = styled.aside`
   /* border: 1px solid red; */
   border: 1px solid #ebeef1;
   box-shadow: 0px 0px 10px -5px #a3a3a3;
-  max-width: 200px;
+  /* max-width: 200px; */
+  max-width: 300px;
   width: 100%;
   display: flex;
   justify-content: center;
   align-items: start;
   padding: 5px;
-  top: 60px;
+  top: 48px;
   position: sticky;
 
   @media (max-width: 1044px) {
@@ -175,9 +181,10 @@ export const AsideLi = styled.li`
 `;
 
 export const AsideBtn = styled.button<AsideLiProps>`
-  padding: 4px 12px;
+  /* border: 1px solid green; */
+  padding: 7px 12px;
   width: 100%;
-  font-size: 12px;
+  font-size: 14px;
   border-radius: 5px;
 
   display: flex;
@@ -191,4 +198,147 @@ export const AsideBtn = styled.button<AsideLiProps>`
     background-color: #ebeef1;
     color: #16ae81;
   }
+`;
+
+// 옵션 및 검색 공간
+export const FilterWrap = styled.div`
+  /* border: 1px solid red; */
+  position: sticky;
+  top: 48px;
+  background-color: #fff;
+  width: 100%;
+  min-height: 80px;
+
+  @media (max-width: 768px) {
+    top: 0;
+  }
+`;
+
+// 게시물 태그 / 검색 / 작성 / 인기 / 최신 / 등등 공간
+export const Filter = styled.div`
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 16px;
+`;
+
+// 태그 옵션
+export const TagSelectWrap = styled.div`
+  /* border: 1px solid red; */
+  display: flex;
+  flex-direction: column;
+  max-width: 80px;
+  min-width: 80px;
+  width: 100%;
+  position: relative;
+  gap: 5px;
+`;
+
+export const MainTag = styled.button`
+  border: 1px solid #7b858e;
+  border-radius: 5px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2px 5px;
+  width: 100%;
+  gap: 15px;
+`;
+
+export const TagSelect = styled.div`
+  /* border: 1px solid red; */
+`;
+
+export const TagSelectImg = styled.img`
+  width: 13px;
+  height: 13px;
+`;
+
+export const TagOptionWrap = styled.ul`
+  border: 1px solid #7b858e;
+  border-radius: 5px;
+  display: flex;
+  flex-direction: column;
+  /* justify-content: start; */
+  align-items: center;
+  padding: 2px 5px;
+  width: 100%;
+  /* bottom: -100px; */
+  bottom: -6.3rem;
+  position: absolute;
+  background-color: #fff;
+  /* display: none; */
+`;
+
+export const TagOption = styled.li`
+  /* border: 1px solid red; */
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+
+export const TagOptionBtn = styled.button`
+  width: 100%;
+  border-radius: 5px;
+
+  :hover {
+    background-color: #00000011;
+  }
+`;
+
+// export const TagSelect = styled.select`
+//   border: 1px solid red;
+//   border-radius: 5px;
+//   padding: 0 10px;
+// `;
+
+// export const TagOption = styled.option`
+//   border-radius: 5px;
+// `;
+
+// 게시물 작성 및 검색 공간
+export const OptionWrap = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+`;
+
+// 게시물 작성 이미지
+export const OptionImg = styled.img`
+  /* border: 1px solid red; */
+  min-width: 17px;
+  width: 17px;
+  height: 17px;
+`;
+
+// 검색 공간
+export const SearchWrap = styled.div`
+  /* border: 1px solid red; */
+  margin-left: 20px;
+  position: relative;
+`;
+
+// 검색창
+export const SearchInput = styled.input`
+  background-color: #ebeef1;
+  padding: 5px 40px 5px 10px;
+  color: #7b858e;
+  max-width: 250px;
+  width: 100%;
+  /* margin-left: 20px; */
+  border-radius: 5px;
+  outline: none;
+  box-sizing: border-box;
+`;
+
+// 검색 이미지
+export const SearchImg = styled.img`
+  /* border: 1px solid red; */
+  width: 22px;
+  height: 22px;
+  position: absolute;
+  top: 5px;
+  right: 10px;
+  cursor: pointer;
 `;
