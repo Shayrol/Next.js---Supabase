@@ -84,7 +84,7 @@ export default function UserBoards({
 
     setData({ count: result.count, initialData: result.data });
     setMeta({ metaTag: tag, metaPage: 0 });
-    setIsOpen((prev) => !prev);
+    // setIsOpen((prev) => !prev);
     void router.push(
       {
         pathname: router.pathname,
@@ -180,12 +180,6 @@ export default function UserBoards({
                 <></>
               )}
             </S.TagSelectWrap>
-            {/* <S.TagSelect>
-              <S.TagOption>전체</S.TagOption>
-              <S.TagOption>자유</S.TagOption>
-              <S.TagOption>질문</S.TagOption>
-              <S.TagOption>유머</S.TagOption>
-            </S.TagSelect> */}
             <S.OptionWrap>
               <S.SearchWrap>
                 <S.SearchInput

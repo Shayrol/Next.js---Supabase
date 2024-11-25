@@ -267,6 +267,7 @@ export const SideTabWrap = styled.div<{ isOpen: boolean }>`
   height: 100dvh;
   display: ${({ isOpen }) => (isOpen ? "block" : "none")};
   transition: 0.2s;
+  z-index: 999;
 `;
 
 export const SideTab = styled.div<{ isOpen: boolean; userLogin: boolean }>`

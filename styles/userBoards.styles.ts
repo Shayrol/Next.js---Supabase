@@ -208,6 +208,7 @@ export const FilterWrap = styled.div`
   background-color: #fff;
   width: 100%;
   min-height: 80px;
+  z-index: 50;
 
   @media (max-width: 768px) {
     top: 0;
