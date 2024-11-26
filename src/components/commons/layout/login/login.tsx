@@ -3,6 +3,9 @@ import { User } from "@supabase/supabase-js";
 import Link from "next/link";
 import * as S from "./login.styles";
 import { createClient } from "@/utils/supabase/component";
+import { useRouter } from "next/router";
+
+const LOGIN_USER_PAGE = ["/boardWriter"];
 
 export default function HamburgerMenu({
   userLogin,
@@ -16,6 +19,16 @@ export default function HamburgerMenu({
   const toggleMenu = () => setIsOpen((prev) => !prev);
   const userData = userLogin?.user_metadata;
   const supabase = createClient();
+  const router = useRouter();
+  const userPage = LOGIN_USER_PAGE.find((el) => el === router.asPath);
+
+  const getUser = async () => {
+    const { data, error } = await supabase.auth.getUser();
+
+    if (userPage) {
+      router.push(`/login`);
+    }
+  };
 
   // 로그아웃
   const signOutWith = async () => {
@@ -25,6 +38,7 @@ export default function HamburgerMenu({
     if (!error) {
       setUserLogin(null);
       setIsOpen((prev) => !prev);
+      getUser();
     }
   };
 
@@ -45,7 +59,7 @@ export default function HamburgerMenu({
       ) : (
         <>
           <S.LoginBtn>
-            <Link href={"/login"}>Login</Link>
+            <Link href={"/login"}>로그인</Link>
           </S.LoginBtn>
           <S.ResponsiveImage
             onClick={toggleMenu}
@@ -53,7 +67,7 @@ export default function HamburgerMenu({
           />
         </>
       )}
-      <S.SideTabWrap isOpen={isOpen}>
+      <S.SideTabWrap isOpen={isOpen} userLogin={userLogin === null}>
         <S.SideTab isOpen={isOpen} userLogin={userLogin === null}>
           {/* <div onClick={toggleMenu}>X</div> */}
           <S.CloseImg src="/images/logo/close.png" onClick={toggleMenu} />
@@ -64,16 +78,16 @@ export default function HamburgerMenu({
             <li>
               {userData ? (
                 <S.SideTabSignWrap onClick={signOutWith}>
-                  <S.SideTabLogoutBtn>로그아웃</S.SideTabLogoutBtn>
+                  <S.SideTabLogInOutFont>로그아웃</S.SideTabLogInOutFont>
                   <S.SideTabSignImg src="/images/logo/logout.png" />
                 </S.SideTabSignWrap>
               ) : (
-                <S.SideTabSignWrap>
-                  <Link href={"/login"} style={{ fontWeight: "600" }}>
-                    로그인
-                  </Link>
-                  <S.SideTabSignImg src="/images/logo/login.png" />
-                </S.SideTabSignWrap>
+                <Link href={"/login"}>
+                  <S.SideTabSignWrap>
+                    <S.SideTabLogInOutFont>로그인</S.SideTabLogInOutFont>
+                    <S.SideTabSignImg src="/images/logo/login.png" />
+                  </S.SideTabSignWrap>
+                </Link>
               )}
             </li>
           </S.MenuList>

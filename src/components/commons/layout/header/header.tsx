@@ -20,6 +20,9 @@ export default function Header(): JSX.Element {
   const router = useRouter();
   const supabase = createClient();
   const [userLogin, setUserLogin] = useState<User | null>(null);
+  const [isOpen, setIsOpen] = useState(false);
+
+  const toggleMenu = () => setIsOpen((prev) => !prev);
   // const color = #fff1c6;
 
   console.log("userLogin: ", userLogin);
@@ -62,12 +65,14 @@ export default function Header(): JSX.Element {
           </S.LogoWrap>
         </Link>
         <S.Nav>
-          <S.HamburgerNav>
+          {/* 모바일 환경 메뉴 */}
+          <S.HamburgerNav onClick={toggleMenu}>
             <S.ResponsiveImage src="/images/logo/menu-logo/hamburger-menu-mark.svg" />
-            {/* <S.ResponsiveImage src="/images/logo/menu-logo/user-mark.svg" /> */}
           </S.HamburgerNav>
-          {headerNav.map((el) => (
-            <S.UL key={el.name}>
+          {/* 웹 환경 메뉴 */}
+          <S.UL isOpen={isOpen}>
+            <S.CloseImg src="/images/logo/close.png" onClick={toggleMenu} />
+            {headerNav.map((el) => (
               <S.LI
                 currentPage={String(el.path) === String(router.pathname)}
                 key={el.name}
@@ -76,15 +81,10 @@ export default function Header(): JSX.Element {
                   {el.name}
                 </Link>
               </S.LI>
-            </S.UL>
-          ))}
+            ))}
+          </S.UL>
         </S.Nav>
         <HamburgerMenu userLogin={userLogin} setUserLogin={setUserLogin} />
-        {/* {userLogin ? (
-          <HamburgerMenu userLogin={userLogin} />
-        ) : (
-          <HamburgerMenu userLogin={userLogin} />
-        )} */}
       </S.HeaderWrap>
     </S.Wrap>
   );

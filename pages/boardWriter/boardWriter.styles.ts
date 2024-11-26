@@ -1,6 +1,6 @@
 import styled from "@emotion/styled";
 
-export const Wrap = styled.section`
+export const Wrap = styled.main`
   width: 100%;
   display: flex;
   flex-direction: row;
@@ -11,7 +11,7 @@ export const Wrap = styled.section`
   box-sizing: border-box;
 `;
 
-export const BoardWrap = styled.main`
+export const WriteWrap = styled.article`
   border: 1px solid red;
   max-width: 900px;
   width: 100%;

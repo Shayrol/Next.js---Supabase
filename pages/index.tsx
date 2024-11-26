@@ -193,11 +193,6 @@ export default function UserBoards({
               </Link>
             </S.OptionWrap>
           </S.Filter>
-          <div style={{ border: "1px solid red" }}>
-            <span>인기</span>
-            <span>최신</span>
-            <span>등등</span>
-          </div>
         </S.FilterWrap>
         <S.BoardsList>
           {data.initialData?.map((el) => (

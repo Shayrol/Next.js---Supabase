@@ -14,9 +14,8 @@ export const Wrap = styled.section`
   flex-direction: row;
   justify-content: center;
   align-items: start;
-  /* margin-top: 100px; */
-  /* margin-top: 5px; */
   gap: 10px;
+  margin-top: 10px;
   box-sizing: border-box;
 `;
 
@@ -202,12 +201,13 @@ export const AsideBtn = styled.button<AsideLiProps>`
 
 // 옵션 및 검색 공간
 export const FilterWrap = styled.div`
-  /* border: 1px solid red; */
+  border: 1px solid #ebeef1;
+  box-shadow: 0px 0px 10px -5px #a3a3a3;
   position: sticky;
   top: 48px;
   background-color: #fff;
   width: 100%;
-  min-height: 80px;
+  /* min-height: 60px; */
   z-index: 50;
 
   @media (max-width: 768px) {
@@ -215,10 +215,12 @@ export const FilterWrap = styled.div`
   }
 `;
 
-// 게시물 태그 / 검색 / 작성 / 인기 / 최신 / 등등 공간
+// 게시물 태그 / 검색 / 작성 공간
 export const Filter = styled.div`
+  /* border: 1px solid red; */
   display: flex;
   justify-content: space-between;
+  align-items: center;
   padding: 10px 16px;
 `;
 
