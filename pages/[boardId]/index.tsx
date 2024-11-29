@@ -5,10 +5,18 @@ import {
 import { GetServerSidePropsContext } from "next";
 import { useRouter } from "next/router";
 import * as S from "../../styles/userBoard.styles";
+import dynamic from "next/dynamic";
 
 interface ISSRProps {
   initialData: IBoard;
 }
+
+const ToastViewer = dynamic(
+  () => import("../../src/components/commons/hooks/Editor/TuiViewer"),
+  {
+    ssr: false,
+  }
+);
 
 export default function UserBoard({ initialData }: ISSRProps): JSX.Element {
   const router = useRouter();
@@ -46,11 +54,17 @@ export default function UserBoard({ initialData }: ISSRProps): JSX.Element {
       {/* </Head> */}
 
       <S.BoardWrap>
-        <div>{initialData.id}</div>
+        {/* <div>{initialData.id}</div>
         <div>{initialData.tag}</div>
-        <div>{initialData.user.name}</div>
+        <div>{initialData.user?.name}</div>
         <div>{initialData.title}</div>
-        <div>{initialData.body}</div>
+        <div>{initialData.body}</div> */}
+        {initialData.id && (
+          <>
+            <div>title: {initialData.title}</div>
+            <ToastViewer content={initialData.body} />
+          </>
+        )}
       </S.BoardWrap>
     </S.Wrap>
   );

@@ -1,5 +1,3 @@
-import { useRouter } from "next/router";
-import { useState } from "react";
 import { createClient } from "@/utils/supabase/component";
 import * as S from "./login.styles";
 import Link from "next/link";
@@ -13,12 +11,17 @@ export default function LoginPage() {
   const signInWithGithub = async () => {
     // 현재 페이지 URL을 가져옵니다.
     // const currentUrl = window.location.href;
-    const currentUrl = "/";
+    const url = sessionStorage.getItem("previousURL");
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: "github",
       options: {
         // 현재 URL로 리디렉션 설정
-        redirectTo: currentUrl,
+        redirectTo:
+          String(url) === "http://localhost:3000/boardWriter"
+            ? "/"
+            : String(url)
+            ? String(url)
+            : "/",
       },
     });
     if (error) {
@@ -29,12 +32,16 @@ export default function LoginPage() {
 
   // kakao
   const signInWithKakao = async () => {
-    // const currentUrl = window.location.href;
-    const currentUrl = "/";
+    const url = sessionStorage.getItem("previousURL");
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: "kakao",
       options: {
-        redirectTo: currentUrl,
+        redirectTo:
+          String(url) === "http://localhost:3000/boardWriter"
+            ? "/"
+            : String(url)
+            ? String(url)
+            : "/",
       },
     });
     if (error) {
@@ -45,12 +52,16 @@ export default function LoginPage() {
 
   // google
   const signInWithGoogle = async () => {
-    // const currentUrl = window.location.href;
-    const currentUrl = "/";
+    const url = sessionStorage.getItem("previousURL");
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: currentUrl,
+        redirectTo:
+          String(url) === "http://localhost:3000/boardWriter"
+            ? "/"
+            : String(url)
+            ? String(url)
+            : "/",
         queryParams: {
           // refresh Token 발급 - (카카오는 30일(자동), 깃허브(항상유지)) - 기능 끄기(online)
           access_type: "offline",
@@ -123,7 +134,6 @@ export const getServerSideProps = async (
   context: GetServerSidePropsContext
 ) => {
   const supabase = createSClient(context);
-
   const { data } = await supabase.auth.getUser();
 
   if (data.user) {

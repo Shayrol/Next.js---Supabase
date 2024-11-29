@@ -62,7 +62,6 @@ export const Nav = styled.nav`
   flex-grow: 1;
   display: flex;
   justify-content: center;
-  /* position: relative; */
 
   @media (max-width: 768px) {
     justify-content: right;
@@ -77,7 +76,7 @@ export const HamburgerNav = styled.div`
 
   @media (max-width: 768px) {
     /* border: 1px solid blue; */
-    display: flex;
+    display: block;
     justify-content: left;
   }
 `;
@@ -105,7 +104,7 @@ export const UL = styled.ul<{ isOpen: boolean }>`
     padding: 10px;
     height: ${({ isOpen }) => (isOpen ? "100%" : "0px")};
     opacity: ${({ isOpen }) => (isOpen ? "1" : "0")};
-    transition: height 0.3s ease, opacity 0.3s ease;
+    transition: height 0.3s ease;
     pointer-events: ${({ isOpen }) => (isOpen ? "auto" : "none")};
   }
 `;

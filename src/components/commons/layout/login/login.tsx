@@ -39,10 +39,15 @@ export default function HamburgerMenu({
       setUserLogin(null);
       setIsOpen((prev) => !prev);
       getUser();
+      sessionStorage.setItem("previousURL", window.location.href);
     }
   };
 
   const color = "#cecece4a";
+
+  const previousURL = () => {
+    sessionStorage.setItem("previousURL", window.location.href);
+  };
 
   return (
     <S.Container>
@@ -59,7 +64,9 @@ export default function HamburgerMenu({
       ) : (
         <>
           <S.LoginBtn>
-            <Link href={"/login"}>로그인</Link>
+            <Link href={"/login"} onClick={previousURL}>
+              로그인
+            </Link>
           </S.LoginBtn>
           <S.ResponsiveImage
             onClick={toggleMenu}
@@ -82,7 +89,7 @@ export default function HamburgerMenu({
                   <S.SideTabSignImg src="/images/logo/logout.png" />
                 </S.SideTabSignWrap>
               ) : (
-                <Link href={"/login"}>
+                <Link href={"/login"} onClick={previousURL}>
                   <S.SideTabSignWrap>
                     <S.SideTabLogInOutFont>로그인</S.SideTabLogInOutFont>
                     <S.SideTabSignImg src="/images/logo/login.png" />
