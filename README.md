@@ -163,4 +163,35 @@ navigation bar 모바일 환경 화면 구현 - 햄버거 아이콘 클릭 시 n
 
 1. 로그인 시 이전 페이지로 이동하기
 
+11/30 <br>
+Toast ui Editor를 통해 게시글 작성 페이지 구현함 + useForm을 통해 유효성 검사 추가했음 <br>
+Toast의 Viewer를 통해 표현적 스타일 부분을 적용해 보여준다. <br>
+기본적으로 마크다운으로 저장이 되지만 설정을 통해 마크업으로 서버에 저장을 하고 Viewer를 통해 스타일이 적용된 글을 보여준다. <br>
+유효성 검사를 통해 필수 입력이 필요한 채녈(태그: "자유", "유머", "질문")과 제목, 내용을 적용하므로 해당 register를 통해 값을 저장함 <br>
+
+# 11/30 마무리 결과
+![testBoard-writer](https://github.com/user-attachments/assets/eb656d3f-af80-4a82-93e5-2555275b7b86) <br>
+↑ 게시글 작성 페이지 - Web <br>
+
+![testBoard-writer-mobile1](https://github.com/user-attachments/assets/644f9cc2-91c8-4109-b54e-2c6771047d42) <br>
+↑ 게시글 작성 페이지 - Mobile <br>
+
+![testBoard-writer-mobile2](https://github.com/user-attachments/assets/1f291a98-318f-402b-be2b-64a3a1c7f67b) <br>
+↑ 게시글 작성 페이지 - Mobile / 값 넣음 <br>
+
+![testBoard-writer-mobile3](https://github.com/user-attachments/assets/b269d519-80de-4168-83c4-f68db3b53e1f) <br>
+↑ 게시글 작성 후 데이터 불러옴 - 임시 상세 페이지 <br>
+
+이후 해야할 것 <br>
+1. 게시물 상세 페이지 스타일 구성하기
+2. 게시물 상세 페이지 완성하면 삭제 및 수정 기능 추가하기
+3. 게시물 댓글, 대댓글 - table 구현 머리 아픔..
+4. 최신, 인기, 검색 구현 - 게시물 목록 id로 표시되어 있는데 인기(추천) 순으로 변경 예정 - 안 급함
+5. 유저 닉네임 변경 및 프로필 사진 변경 구현 - 스토리지 생성하고 또 테이블 참조하는거 빼고는 쉬움 - 안 급함
+
+
+
+
+
+
 
