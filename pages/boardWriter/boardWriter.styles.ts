@@ -1,6 +1,8 @@
 import styled from "@emotion/styled";
 
 export const Wrap = styled.main`
+  border: 1px solid red;
+  max-width: 728px;
   width: 100%;
   display: flex;
   flex-direction: row;
@@ -9,12 +11,16 @@ export const Wrap = styled.main`
   gap: 10px;
   margin-top: 10px;
   box-sizing: border-box;
+
+  @media (max-width: 1040px) {
+    max-width: 100%;
+  }
 `;
 
 export const WriteWrap = styled.article`
   /* border: 1px solid red; */
   box-shadow: 0px 0px 10px -5px #a3a3a3;
-  max-width: 900px;
+  /* max-width: 728px; */
   width: 100%;
   padding: 25px 20px;
 `;

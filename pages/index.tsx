@@ -9,6 +9,8 @@ import { useRouter } from "next/router";
 import Pagination01 from "@/src/components/pagination/01/pagination";
 import Head from "next/head";
 import Link from "next/link";
+import { atom, useRecoilState, useRecoilValue } from "recoil";
+import { useBoardsStore } from "@/src/commons/stores";
 
 interface ISSRProps {
   initialData: IBoards[];
@@ -47,6 +49,7 @@ export default function UserBoards({
     count: count,
     initialData: initialData,
   });
+
   const [meta, setMeta] = useState(metaData);
   const [isOpen, setIsOpen] = useState(false);
 
@@ -68,7 +71,6 @@ export default function UserBoards({
       isFirstMount.current = false;
       return;
     }
-
     if (!router.query.page) return;
 
     const resultData = async () => {
@@ -78,13 +80,30 @@ export default function UserBoards({
     resultData();
   }, [router.query.page]);
 
+  useEffect(() => {
+    // 첫 마운트 시 실행 X
+    if (isFirstMount.current) {
+      isFirstMount.current = false;
+      return;
+    }
+
+    if (!router.query.tag) return;
+
+    const resultData = async () => {
+      const result = await fetchBoards(0, tag);
+      setData({ count: result.count, initialData: result.data });
+    };
+    resultData();
+  }, [router.query.tag]);
+
   // 켜뮤니티 사이드 탭 - 전체, 자유, 유머, 질문
   const AsideQuery = async (tag: string) => {
     const result = await fetchBoards(0, tag);
 
     setData({ count: result.count, initialData: result.data });
     setMeta({ metaTag: tag, metaPage: 0 });
-    // setIsOpen((prev) => !prev);
+    setIsOpen(false);
+
     void router.push(
       {
         pathname: router.pathname,
@@ -141,7 +160,7 @@ export default function UserBoards({
       {/* <meta name="twitter:image" content="/path/to/default-og-image.jpg" /> */}
       {/* </Head> */}
 
-      <S.AsideWrap>
+      {/* <S.AsideWrap>
         <S.AsideNav>
           <S.AsideUl>
             {tags.map((el) => (
@@ -156,7 +175,7 @@ export default function UserBoards({
             ))}
           </S.AsideUl>
         </S.AsideNav>
-      </S.AsideWrap>
+      </S.AsideWrap> */}
 
       <S.BoardsWrap>
         <S.FilterWrap>
@@ -220,6 +239,8 @@ export default function UserBoards({
         </S.BoardsList>
         <Pagination01 pagination={pagination} />
       </S.BoardsWrap>
+
+      {/* <S.TestAsideWrap>test</S.TestAsideWrap> */}
     </S.Wrap>
   );
 }

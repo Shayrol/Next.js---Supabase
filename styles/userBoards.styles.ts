@@ -8,7 +8,8 @@ interface AsideLiProps {
 }
 
 export const Wrap = styled.section`
-  /* border: 1px solid red; */
+  border: 1px solid red;
+  max-width: 728px;
   width: 100%;
   display: flex;
   flex-direction: row;
@@ -16,14 +17,20 @@ export const Wrap = styled.section`
   align-items: start;
   gap: 10px;
   margin-top: 10px;
+  /* padding: 0 20px; */
   box-sizing: border-box;
+
+  @media (max-width: 1040px) {
+    max-width: 100%;
+  }
 `;
 
 // 게시글 전체 (main 태그로 변경)
 export const BoardsWrap = styled.main`
-  /* border: 1px solid green; */
+  border: 1px solid green;
   box-shadow: 0px 0px 10px -5px #a3a3a3;
-  max-width: 900px;
+  /* max-width: 900px; */
+  /* max-width: 728px; */
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -32,9 +39,9 @@ export const BoardsWrap = styled.main`
   gap: 10px;
   padding-bottom: 10px;
 
-  @media (max-width: 1044px) {
+  /* @media (max-width: 1044px) {
     max-width: 100%;
-  }
+  } */
 `;
 
 // 게시글 리스트 (section -> ul로 변경, 게시글은 list로 표현)
@@ -148,6 +155,27 @@ export const AsideWrap = styled.aside`
   position: sticky;
 
   @media (max-width: 1044px) {
+    display: none;
+  }
+`;
+
+// test right Aside
+export const TestAsideWrap = styled.aside`
+  /* border: 1px solid red; */
+  border: 1px solid #ebeef1;
+  box-shadow: 0px 0px 10px -5px #a3a3a3;
+  /* max-width: 200px; */
+  max-width: 300px;
+  width: 100%;
+  height: 600px;
+  display: flex;
+  justify-content: center;
+  align-items: start;
+  padding: 5px;
+  top: 48px;
+  position: sticky;
+
+  @media (max-width: 1370px) {
     display: none;
   }
 `;
