@@ -6,9 +6,14 @@ import { GetServerSidePropsContext } from "next";
 import { useRouter } from "next/router";
 import * as S from "../../styles/userBoard.styles";
 import dynamic from "next/dynamic";
+import { Dispatch, SetStateAction } from "react";
+import { User } from "@supabase/supabase-js";
+import Link from "next/link";
 
 interface ISSRProps {
   initialData: IBoard;
+  userLogin: User | null;
+  setUserLogin: Dispatch<SetStateAction<User | null>>;
 }
 
 const ToastViewer = dynamic(
@@ -18,10 +23,20 @@ const ToastViewer = dynamic(
   }
 );
 
-export default function UserBoard({ initialData }: ISSRProps): JSX.Element {
+export default function UserBoard({
+  initialData,
+  userLogin,
+}: ISSRProps): JSX.Element {
   const router = useRouter();
+
+  const boardUserId = initialData.user.id;
+  const loginUserId = userLogin?.id;
   console.log("boardId: ", router.query.boardId);
-  console.log("initialData: ", initialData);
+  console.log("initialData: ", initialData.user.id);
+
+  console.log("login Data: ", userLogin?.id);
+
+  const color = "#cdcdcd";
 
   return (
     <S.Wrap>
@@ -54,16 +69,39 @@ export default function UserBoard({ initialData }: ISSRProps): JSX.Element {
       {/* </Head> */}
 
       <S.BoardWrap>
-        {/* <div>{initialData.id}</div>
-        <div>{initialData.tag}</div>
-        <div>{initialData.user?.name}</div>
-        <div>{initialData.title}</div>
-        <div>{initialData.body}</div> */}
         {initialData.id && (
-          <>
-            <div>title: {initialData.title}</div>
-            <ToastViewer content={initialData.body} />
-          </>
+          <S.BoardInfoWrap>
+            <S.BoardTitleWrap>
+              <S.Title>{initialData.title}</S.Title>
+              <S.TitleUserInfoWrap>
+                <S.UserInfoWrap>
+                  <S.Tag>{initialData.tag}</S.Tag>
+                  <S.Created>{initialData.created_at}</S.Created>
+                  <S.Name>{initialData.user.name}</S.Name>
+                </S.UserInfoWrap>
+                <S.MetaInfoWrap>
+                  <S.ViewCount>조회수: 229</S.ViewCount>
+                  <S.CommentCount>댓글: 2</S.CommentCount>
+                  <S.LikeCount>추천: 5</S.LikeCount>
+                </S.MetaInfoWrap>
+              </S.TitleUserInfoWrap>
+              {boardUserId === loginUserId ? (
+                <S.EditDeleteWrap>
+                  <S.Edit>
+                    <Link href={`/${router.query.boardId}/edit`}>수정</Link>
+                  </S.Edit>
+                  <S.Delete>
+                    <Link href={"/"}>삭제</Link>
+                  </S.Delete>
+                </S.EditDeleteWrap>
+              ) : (
+                <></>
+              )}
+            </S.BoardTitleWrap>
+            <S.BoardBody>
+              <ToastViewer content={initialData.body} />
+            </S.BoardBody>
+          </S.BoardInfoWrap>
         )}
       </S.BoardWrap>
     </S.Wrap>

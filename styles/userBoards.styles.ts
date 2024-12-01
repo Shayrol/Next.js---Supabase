@@ -8,7 +8,7 @@ interface AsideLiProps {
 }
 
 export const Wrap = styled.section`
-  border: 1px solid red;
+  /* border: 1px solid red; */
   max-width: 728px;
   width: 100%;
   display: flex;
@@ -27,7 +27,7 @@ export const Wrap = styled.section`
 
 // 게시글 전체 (main 태그로 변경)
 export const BoardsWrap = styled.main`
-  border: 1px solid green;
+  /* border: 1px solid green; */
   box-shadow: 0px 0px 10px -5px #a3a3a3;
   /* max-width: 900px; */
   /* max-width: 728px; */

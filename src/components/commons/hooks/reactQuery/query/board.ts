@@ -1,3 +1,4 @@
+import { getRelativeTime } from "@/src/commons/date/getRelativeTime";
 import { createClient } from "@/utils/supabase/component";
 
 export interface IBoard {
@@ -27,7 +28,16 @@ export const fetchBoard = async (
     .single();
 
   const { data, error } = await dataQuery;
-  console.log("상세 게시물: ", data);
 
-  return { data: data as IBoard };
+  const transformedData = {
+    ...data,
+    created_at: getRelativeTime(data.created_at),
+  };
+
+  // const transformedData = data((board: IBoard) => ({
+  //   ...board,
+  //   created_at: getRelativeTime(board.created_at),
+  // }));
+
+  return { data: transformedData as IBoard };
 };

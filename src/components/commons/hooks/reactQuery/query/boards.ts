@@ -61,39 +61,3 @@ export const fetchBoards = async (
 
   return { data: transformedData as IBoards[], count };
 };
-
-// export const fetchBoards = async (
-//   page: number,
-//   tag: string | string[] | undefined
-// ): Promise<{ data: IBoards[]; count: number | null }> => {
-//   console.log("page: ", page);
-//   const start = page * 5;
-//   const end = start + 4;
-//   let query = supabase
-//     .from("page")
-//     .select("*", { count: "exact" })
-//     .order("created_at", { ascending: false })
-//     .range(start, end);
-
-//   if (tag !== "전체") {
-//     query = query.eq("tag", tag);
-//   }
-
-//   const { data, count, error } = await query;
-
-//   if (error) {
-//     console.error("Error fetching data:", error);
-//     return { data: [], count: null };
-//   }
-
-//   return { data, count };
-// };
-
-// export const useBoards = (page: number) => {
-//   return useQuery<IBoards[]>({
-//     queryKey: ["boards", page],
-//     queryFn: () => fetchBoards(page),
-//     gcTime: Infinity,
-//     staleTime: 5 * 60 * 1000, // 5분간 데이터 요청X 이후 새로운 데이터 요청함
-//   });
-// };

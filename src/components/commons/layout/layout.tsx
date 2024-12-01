@@ -2,9 +2,13 @@ import { useRouter } from "next/router";
 import Header from "./header/header";
 import TestAside from "./aside/aside";
 import styled from "@emotion/styled";
+import { Dispatch, SetStateAction } from "react";
+import { User } from "@supabase/supabase-js";
 
 interface ILayoutProps {
   children: JSX.Element;
+  userLogin: User | null;
+  setUserLogin: Dispatch<SetStateAction<User | null>>;
 }
 
 const HEADER_HIDDEN = ["/login"];
@@ -15,11 +19,9 @@ export default function Layout(props: ILayoutProps): JSX.Element {
 
   return (
     <>
-      {!header && <Header />}
-      {/* <section>
-        {!header && <TestAside />}
-        <main>{props.children}</main>
-      </section> */}
+      {!header && (
+        <Header userLogin={props.userLogin} setUserLogin={props.setUserLogin} />
+      )}
       <Main>
         {!header && <TestAside />}
         {props.children}
@@ -30,7 +32,6 @@ export default function Layout(props: ILayoutProps): JSX.Element {
 }
 
 const Main = styled.main`
-  /* border: 5px solid red; */
   display: flex;
   justify-content: center;
   align-items: start;
@@ -42,7 +43,6 @@ const Main = styled.main`
 const Test = styled.div`
   border: 1px solid #ebeef1;
   box-shadow: 0px 0px 10px -5px #a3a3a3;
-  /* max-width: 200px; */
   max-width: 300px;
   width: 100%;
   height: 600px;

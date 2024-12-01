@@ -1,0 +1,5 @@
+/* toast-viewer-custom.css */
+.toastui-editor-contents {
+  font-size: 18px; /* 원하는 글자 크기 */
+  line-height: 1.6; /* 줄 간격 */
+}

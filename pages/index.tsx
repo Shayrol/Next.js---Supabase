@@ -160,23 +160,6 @@ export default function UserBoards({
       {/* <meta name="twitter:image" content="/path/to/default-og-image.jpg" /> */}
       {/* </Head> */}
 
-      {/* <S.AsideWrap>
-        <S.AsideNav>
-          <S.AsideUl>
-            {tags.map((el) => (
-              <S.AsideLi key={el.name}>
-                <S.AsideBtn
-                  onClick={() => AsideQuery(el.name)}
-                  activeOption={(router.query.tag ?? "전체") === el.name}
-                >
-                  {el.name}
-                </S.AsideBtn>
-              </S.AsideLi>
-            ))}
-          </S.AsideUl>
-        </S.AsideNav>
-      </S.AsideWrap> */}
-
       <S.BoardsWrap>
         <S.FilterWrap>
           <S.Filter>
@@ -239,8 +222,6 @@ export default function UserBoards({
         </S.BoardsList>
         <Pagination01 pagination={pagination} />
       </S.BoardsWrap>
-
-      {/* <S.TestAsideWrap>test</S.TestAsideWrap> */}
     </S.Wrap>
   );
 }
