@@ -190,7 +190,22 @@ Toast의 Viewer를 통해 표현적 스타일 부분을 적용해 보여준다. 
 5. 유저 닉네임 변경 및 프로필 사진 변경 구현 - 스토리지 생성하고 또 테이블 참조하는거 빼고는 쉬움 - 안 급함
 
 
+12/01 <br>
+게시글 상세 페이지 구현 - 본인 게시물인 경우 수정, 삭제 뜸 <br>
 
+# 12/01 마무리 결과
+![testBoard7](https://github.com/user-attachments/assets/30423faa-9b4e-421b-99d6-a56e3c338035) <br>
+↑ 게시글 상세 페이지 - Web <br>
+
+![testBoard-mobile](https://github.com/user-attachments/assets/e16bfbc2-a0ed-41b7-b74b-d0d5f92b8a70) <br>
+↑ 게시글 상세 페이지 - Mobile <br>
+
+
+이후 해야할 것 <br>
+1. 게시물 상세 페이지 댓글, 좋아요, 조회수 구현하기
+2. 게시물 상세 페이지에서 사이드 탭 게시글 이동 에러 해결하기
+3. 게시물 상세 페이지 아래 게시글 리스트 추가하기
+4. 사진 저장
 
 
 
