@@ -208,5 +208,25 @@ Toast의 Viewer를 통해 표현적 스타일 부분을 적용해 보여준다. 
 4. 사진 저장
 
 
+12/04 <br>
+게시글 댓글 리스트 및 입력 스타일 구현 + 리스트 데이터 불러옴
+
+# 12/04 마무리 결과
+![testBoard-comment-web](https://github.com/user-attachments/assets/db94c8ab-6c15-494f-948b-1f8165705de2) <br>
+↑ 게시글 상세 페이지 댓글 - Web <br>
+
+![testBoard-comment-mobile](https://github.com/user-attachments/assets/bdbb6f9a-c0f2-4959-afb5-f96f79282c1b) <br>
+↑ 게시글 상세 페이지 댓글 - Mobile <br>
+
+
+이후 해야할 것 <br>
+1. 댓글 등록 및 수정, 삭제 구현하기
+2. 게시글 조회수 및 좋아요 구현하기 - 조회수 동작이 안되어 넘김...
+3. 댓글 추천 구현하기
+4. 댓글 인기순, 최신순 정렬 구현하기
+5. 게시물 리스트에 댓글 개수 표시하기
+6. 댓글 아래 게시물 리스트 추가하기 - 고민중..
+
+
 
 
