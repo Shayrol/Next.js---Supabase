@@ -127,6 +127,8 @@ export default function UserBoards({
     setIsOpen((prev) => !prev);
   };
 
+  console.log("Imagedata: ", data.initialData[0].storage);
+
   return (
     <S.Wrap onClick={onClickToggleOpen}>
       {/* <Head> */}
@@ -216,7 +218,11 @@ export default function UserBoards({
                 </S.UserWrap>
               </S.BoardInfoWrap>
               {/* 이미지 부분 */}
-              <S.Img src="/images/placeholders/placeholder-image.svg" />
+              {el.storage ? (
+                <S.Img src={el.storage[0]} />
+              ) : (
+                <S.Img src="/images/placeholders/placeholder-image.svg" />
+              )}
             </S.BoardItem>
           ))}
         </S.BoardsList>

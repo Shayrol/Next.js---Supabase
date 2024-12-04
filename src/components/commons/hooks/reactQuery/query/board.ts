@@ -8,6 +8,8 @@ export interface IBoard {
   created_at: string;
   user_id: string;
   tag: string | string[] | undefined;
+  storage: string | null;
+  views: number;
   user: {
     id: string;
     name: string;
@@ -33,11 +35,6 @@ export const fetchBoard = async (
     ...data,
     created_at: getRelativeTime(data.created_at),
   };
-
-  // const transformedData = data((board: IBoard) => ({
-  //   ...board,
-  //   created_at: getRelativeTime(board.created_at),
-  // }));
 
   return { data: transformedData as IBoard };
 };

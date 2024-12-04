@@ -4,7 +4,7 @@ import { User } from "@supabase/supabase-js";
 import { GetServerSidePropsContext } from "next";
 import { useRouter } from "next/router";
 import * as S from "./boardWriter.styles";
-import { FormEvent } from "react";
+import { useState } from "react";
 import dynamic from "next/dynamic";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -26,6 +26,7 @@ export interface IForm {
 export default function BoardWriter({ user }: { user: User }) {
   const supabase = createClient();
   const router = useRouter();
+  const [images, setImages] = useState<string[]>([]);
 
   const { register, handleSubmit, trigger, setValue, formState } =
     useForm<IForm>({
@@ -38,7 +39,7 @@ export default function BoardWriter({ user }: { user: User }) {
 
     const { data: insertedData, error } = await supabase
       .from("page")
-      .insert([{ title, body, tag }])
+      .insert([{ title, body, tag, storage: images }])
       .select();
 
     if (error) {
@@ -70,16 +71,18 @@ export default function BoardWriter({ user }: { user: User }) {
             </S.Option>
             <S.Error>{formState.errors.tag?.message}</S.Error>
           </S.OptionWrap>
-
-          {/* <input type="text" name="title" placeholder="title" /> */}
-          {/* <input type="text" name="body" placeholder="body" /> */}
           <S.TitleWrap>
             <S.Title type="text" {...register("title")} placeholder="제목" />
             <S.Error>{formState.errors.title?.message}</S.Error>
           </S.TitleWrap>
 
           <S.EditorWrap>
-            <ToastEditor setValue={setValue} trigger={trigger} />
+            <ToastEditor
+              images={images}
+              setImages={setImages}
+              setValue={setValue}
+              trigger={trigger}
+            />
             <S.Error>{formState.errors.body?.message}</S.Error>
           </S.EditorWrap>
 

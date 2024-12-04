@@ -135,7 +135,8 @@ export const User = styled.div`
 `;
 
 export const Img = styled.img`
-  width: 93px;
+  max-width: 93px;
+  width: 100%;
   height: 60px;
 `;
 

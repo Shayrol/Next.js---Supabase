@@ -10,6 +10,7 @@ export interface IBoards {
   created_at: string;
   user_id: string;
   tag: string | string[] | undefined;
+  storage: string | null;
   user: {
     id: string;
     name: string;

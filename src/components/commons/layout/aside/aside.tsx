@@ -16,13 +16,9 @@ export default function TestAside() {
   const router = useRouter();
 
   const AsideQuery = async (tag: string) => {
-    // const result = await fetchBoards(0, tag);
-    // 해당 가져온 데이터를 변경할 그게 없음
-
-    // setIsOpen((prev) => !prev);
     void router.push(
       {
-        pathname: router.pathname,
+        pathname: "/",
         query: { tag },
       },
       undefined,
