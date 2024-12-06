@@ -6,11 +6,11 @@ export interface IBoard {
   title: string;
   body: string;
   created_at: string;
-  user_id: string;
+  // user_id: string;
   tag: string | string[] | undefined;
   storage: string | null;
   views: number;
-  user: {
+  user_id: {
     id: string;
     name: string;
     email: string;

@@ -8,10 +8,11 @@ export interface IBoards {
   title: string;
   body: string;
   created_at: string;
-  user_id: string;
+  // user_id: string;
   tag: string | string[] | undefined;
   storage: string | null;
-  user: {
+  commentCount: number;
+  user_id: {
     id: string;
     name: string;
     email: string;
@@ -31,7 +32,7 @@ export const fetchBoards = async (
   // 데이터 가져오기 쿼리
   let dataQuery = supabase
     .from("page")
-    .select(`*, user:users(id, name, email, picture)`)
+    .select(`*, user_id:users(id, name, email, picture)`)
     .order("created_at", { ascending: false })
     .range(start, end);
 

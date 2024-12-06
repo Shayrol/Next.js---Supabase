@@ -6,16 +6,9 @@ import { GetServerSidePropsContext } from "next";
 import { useRouter } from "next/router";
 import * as S from "../../styles/userBoard.styles";
 import dynamic from "next/dynamic";
-import {
-  ChangeEvent,
-  Dispatch,
-  SetStateAction,
-  useLayoutEffect,
-  useState,
-} from "react";
+import { ChangeEvent, Dispatch, SetStateAction, useState } from "react";
 import { User } from "@supabase/supabase-js";
 import Link from "next/link";
-import { createSClient } from "@/utils/supabase/server-props";
 import { createClient } from "@/utils/supabase/component";
 import {
   fetchBoardComment,
@@ -55,21 +48,52 @@ export default function UserBoard({
     "popular"
   );
 
-  const boardUserId = initialData.user.id;
-  const loginUserId = userLogin?.id;
-  // const supabase = createClient();
+  const boardUserId = String(initialData.user_id);
+  const loginUserId = String(userLogin?.id);
+  const supabase = createClient();
 
   const color = "#cdcdcd";
 
-  console.log("dataComment: ", dataComment);
   console.log("comment: ", comment);
 
-  const { register, handleSubmit, trigger, formState } = useForm<IForm>({
+  const { register, handleSubmit, trigger, formState, reset } = useForm<IForm>({
     resolver: yupResolver(schemaComment),
     mode: "onChange",
   });
 
-  const onClickSubmit = () => {};
+  const onClickSubmit = async (data: IForm) => {
+    const { body } = data;
+
+    const { data: dataComment, error: commentError } = await supabase
+      .from("comment")
+      .insert([{ board_id: router.query.boardId, body }]);
+
+    if (commentError) {
+      console.log("댓글 저장 실패: ", commentError.message);
+      return;
+    }
+
+    const commentCount = comment.length + 1;
+
+    const { data: updateData, error: updateError } = await supabase
+      .from("page")
+      .update({ commentCount })
+      .eq("id", initialData.id);
+
+    if (updateError) {
+      console.log("page comment count 업데이트 실패: ", updateError.message);
+      return;
+    }
+
+    console.log("page 업데이트 성공: ", updateData);
+
+    const refetchComment = await fetchBoardComment(
+      String(router.query.boardId)
+    );
+    setComment(refetchComment.data);
+    reset(); // 텍스트 입력 초기화
+    setInputCount(0);
+  };
 
   // 댓글 입력 수
   const onTextareaHandler = (e: ChangeEvent<HTMLTextAreaElement>) => {
@@ -81,6 +105,32 @@ export default function UserBoard({
   // 댓글 인기, 최신순
   const handleOptionClick = (option: "popular" | "latest") => {
     setSelectedOption(option);
+  };
+
+  // 게시글 삭제
+  const onClickDeleteBoard = async () => {
+    const { error } = await supabase
+      .from("page")
+      .delete()
+      .eq("id", initialData.id);
+
+    if (error) {
+      console.log("게시글 삭제 실패: ", error);
+    } else {
+      router.push("/");
+    }
+  };
+
+  // 댓글 삭제
+  const onClickDeleteComment = async (id: number) => {
+    const { error } = await supabase.from("comment").delete().eq("id", id);
+
+    if (error) {
+      console.log("게시글 삭제 실패: ", error);
+    } else {
+      const { data } = await fetchBoardComment(String(router.query.boardId));
+      setComment(data);
+    }
   };
 
   return (
@@ -122,11 +172,12 @@ export default function UserBoard({
                 <S.UserInfoWrap>
                   <S.Tag>{initialData.tag}</S.Tag>
                   <S.Created>{initialData.created_at}</S.Created>
-                  <S.Name>{initialData.user.name}</S.Name>
+                  {/* <S.Name>{initialData.user.name}</S.Name> */}
+                  <S.Name>{initialData.user_id.name}</S.Name>
                 </S.UserInfoWrap>
                 <S.MetaInfoWrap>
                   <S.ViewCount>조회수: {initialData.views}</S.ViewCount>
-                  <S.CommentCount>댓글: 2</S.CommentCount>
+                  <S.CommentCount>댓글: {comment.length}</S.CommentCount>
                   <S.LikeCount>추천: 5</S.LikeCount>
                 </S.MetaInfoWrap>
               </S.TitleUserInfoWrap>
@@ -136,7 +187,10 @@ export default function UserBoard({
                     <Link href={`/${router.query.boardId}/edit`}>수정</Link>
                   </S.Edit>
                   <S.Delete>
-                    <Link href={"/"}>삭제</Link>
+                    {/* <Link href={"/"} onClick={() => onClickDelete("page")}>
+                      삭제
+                    </Link> */}
+                    <div onClick={onClickDeleteBoard}>삭제</div>
                   </S.Delete>
                 </S.EditDeleteWrap>
               ) : (
@@ -171,47 +225,67 @@ export default function UserBoard({
           </S.TextButtonWrap>
           <S.Error>{formState.errors.body?.message}</S.Error>
         </S.TextAreaWrap>
-        <S.CommentListWrap>
-          <S.CommentListOpt>
-            <S.ListOptBtn
-              isSelected={selectedOption === "popular"}
-              onClick={() => handleOptionClick("popular")}
-            >
-              인기순
-            </S.ListOptBtn>
-            <S.ListOptBtn
-              isSelected={selectedOption === "latest"}
-              onClick={() => handleOptionClick("latest")}
-            >
-              최신순
-            </S.ListOptBtn>
-          </S.CommentListOpt>
-          {comment.map((el) => (
-            <S.CommentListInfoWrap
-              key={el.id}
-              isAuthor={boardUserId === el.user_id}
-            >
-              <S.CommentLikeWrap>
-                <div>↑</div>
-                <div>0</div>
-                <div>↓</div>
-              </S.CommentLikeWrap>
-              <S.CommentInfoWrap>
-                <S.CommentUserInfoWrap>
-                  <S.User isAuthor={boardUserId === el.user_id}>
-                    {loginUserId === el.user.id ? "작성자" : el.user.name}
-                  </S.User>
-                  <S.CommentCreated>{el.created_at}</S.CommentCreated>
-                </S.CommentUserInfoWrap>
-                <S.CommentBody>{el.body}</S.CommentBody>
-                <S.ReplyWrap>
-                  <S.Report>신고</S.Report>
-                  <S.Reply>답글 쓰기</S.Reply>
-                </S.ReplyWrap>
-              </S.CommentInfoWrap>
-            </S.CommentListInfoWrap>
-          ))}
-        </S.CommentListWrap>
+        {comment.length ? (
+          <S.CommentListWrap>
+            <S.CommentListOpt>
+              <S.ListOptBtn
+                isSelected={selectedOption === "popular"}
+                onClick={() => handleOptionClick("popular")}
+              >
+                인기순
+              </S.ListOptBtn>
+              <S.ListOptBtn
+                isSelected={selectedOption === "latest"}
+                onClick={() => handleOptionClick("latest")}
+              >
+                최신순
+              </S.ListOptBtn>
+            </S.CommentListOpt>
+            {comment.map((el) => (
+              <S.CommentListInfoWrap
+                key={el.id}
+                // isAuthor={boardUserId === el.user_id}
+                isAuthor={boardUserId === String(el.user_id.id)}
+              >
+                <S.CommentLikeWrap>
+                  <S.CommentLikeUpButton />
+                  <S.CommentLikeCount>0</S.CommentLikeCount>
+                  <S.CommentLikeDownButton />
+                </S.CommentLikeWrap>
+                <S.CommentInfoWrap>
+                  <S.CommentUserInfoWrap>
+                    {/* <S.User isAuthor={boardUserId === el.user_id}> */}
+                    <S.User isAuthor={boardUserId === String(el.user_id.id)}>
+                      {loginUserId === el.user_id.id
+                        ? "작성자"
+                        : el.user_id.name}
+                    </S.User>
+                    <S.CommentCreated>{el.created_at}</S.CommentCreated>
+                  </S.CommentUserInfoWrap>
+                  <S.CommentBody>{el.body}</S.CommentBody>
+                  <S.ReplyWrap>
+                    {loginUserId === el.user_id.id ? (
+                      <S.DeleteComment
+                        onClick={() => onClickDeleteComment(el.id)}
+                      >
+                        삭제
+                      </S.DeleteComment>
+                    ) : (
+                      <></>
+                    )}
+                    <S.Report>신고</S.Report>
+                    <S.Reply>답글 쓰기</S.Reply>
+                  </S.ReplyWrap>
+                </S.CommentInfoWrap>
+              </S.CommentListInfoWrap>
+            ))}
+          </S.CommentListWrap>
+        ) : (
+          <S.NoneComment>
+            <S.NoneCommentImg src="/images/logo/comment/message.png" />
+            <S.NoneCommentText>등록된 댓글이 없습니다.</S.NoneCommentText>
+          </S.NoneComment>
+        )}
       </S.CommentWrap>
     </S.Wrap>
   );

@@ -1,7 +1,7 @@
 import styled from "@emotion/styled";
 
 export const Wrap = styled.main`
-  border: 1px solid red;
+  /* border: 1px solid red; */
   max-width: 728px;
   width: 100%;
   display: flex;
@@ -103,7 +103,7 @@ export const Button = styled.button`
     background-color: #00000011;
   }
 
-  :nth-child(2) {
+  &:nth-of-type(2) {
     background-color: #46cfa7;
     color: #fff;
     :hover {

@@ -7,10 +7,11 @@ import {
 } from "@/src/components/commons/hooks/reactQuery/query/boards";
 import { useRouter } from "next/router";
 import Pagination01 from "@/src/components/pagination/01/pagination";
-import Head from "next/head";
 import Link from "next/link";
-import { atom, useRecoilState, useRecoilValue } from "recoil";
-import { useBoardsStore } from "@/src/commons/stores";
+// import {
+//   fetchBoardComments,
+//   IBoardComments,
+// } from "@/src/components/commons/hooks/reactQuery/query/boardComment";
 
 interface ISSRProps {
   initialData: IBoards[];
@@ -19,6 +20,7 @@ interface ISSRProps {
     metaTag: string;
     metaPage: number;
   };
+  // commentData: IBoardComments[];
 }
 
 interface IBoardsProps {
@@ -44,11 +46,14 @@ export default function UserBoards({
   initialData,
   count,
   metaData,
-}: ISSRProps): JSX.Element {
+}: // commentData,
+ISSRProps): JSX.Element {
   const [data, setData] = useState<IBoardsProps>({
     count: count,
     initialData: initialData,
   });
+
+  // console.log("commentData", commentData);
 
   const [meta, setMeta] = useState(metaData);
   const [isOpen, setIsOpen] = useState(false);
@@ -127,7 +132,7 @@ export default function UserBoards({
     setIsOpen((prev) => !prev);
   };
 
-  console.log("Imagedata: ", data.initialData[0].storage);
+  console.log("Imagedata: ", data.initialData);
 
   return (
     <S.Wrap onClick={onClickToggleOpen}>
@@ -205,6 +210,9 @@ export default function UserBoards({
               <S.BoardInfoWrap>
                 <S.TitleWrap>
                   <S.Title>{el.title}</S.Title>
+                  <S.CommentCount>
+                    {el.commentCount !== 0 ? `[${el.commentCount}]` : ""}
+                  </S.CommentCount>
                 </S.TitleWrap>
                 <S.UserWrap>
                   <S.Tag>
@@ -214,14 +222,14 @@ export default function UserBoards({
                   <S.Created>
                     {el.created_at ? el.created_at : "Loading.."}
                   </S.Created>
-                  <S.User>{el.user?.name}</S.User>
+                  <S.User>{el.user_id.name}</S.User>
                 </S.UserWrap>
               </S.BoardInfoWrap>
               {/* 이미지 부분 */}
-              {el.storage ? (
-                <S.Img src={el.storage[0]} />
-              ) : (
+              {el.storage?.length === 0 ? (
                 <S.Img src="/images/placeholders/placeholder-image.svg" />
+              ) : (
+                <S.Img src={el.storage?.[0]} />
               )}
             </S.BoardItem>
           ))}
@@ -242,6 +250,7 @@ export const getServerSideProps = async (
   const tag = context.query.tag || "전체";
 
   const { data, count } = await fetchBoards(page, tag);
+  // const { data: commentData } = await fetchBoardComments();
 
   const metaData = {
     metaTag: tag,
@@ -252,6 +261,7 @@ export const getServerSideProps = async (
       initialData: data || [],
       count: count || null,
       metaData: metaData,
+      // commentData,
     },
   };
 };

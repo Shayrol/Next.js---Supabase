@@ -89,20 +89,35 @@ export const Id = styled.div`
   height: 48px;
 `;
 
-export const TitleWrap = styled.div`
-  /* border: 1px solid blue; */
+export const TitleWrap = styled.span`
+  display: flex;
+  justify-content: start;
   width: 100%;
-  flex: 1;
-  min-width: 0;
+  padding: 4px 0;
 `;
 
 export const Title = styled.h2`
+  display: flex;
+  justify-content: center;
+  align-items: center;
   font-size: 14px;
+  line-height: 1.2;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  width: 100%;
-  margin: 0;
+  max-width: 360px;
+  box-sizing: border-box; /* 여백 정리 */
+`;
+
+export const CommentCount = styled.span`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 14px;
+  line-height: 1.2;
+  margin-left: 7px;
+  color: #16ae81;
+  box-sizing: border-box; /* 여백 정리 */
 `;
 
 export const Tag = styled.div`

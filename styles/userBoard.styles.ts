@@ -309,11 +309,46 @@ export const CommentListInfoWrap = styled.div<CommentIsAuthor>`
   background-color: ${({ isAuthor }) => (isAuthor ? "#f8f9fa" : "#fff")};
 `;
 
+// 댓글 추천
 export const CommentLikeWrap = styled.div`
   /* border: 1px solid red; */
   display: flex;
   flex-direction: column;
-  padding: 5px;
+  justify-content: center;
+  align-items: center;
+`;
+
+// 댓글 UP 버튼
+export const CommentLikeUpButton = styled.div`
+  /* border: 1px solid red; */
+  width: 20px;
+  height: 20px;
+  background-image: url("/images/logo/comment/up-like.png");
+  background-size: cover;
+  cursor: pointer;
+
+  &:hover {
+    background-image: url("/images/logo/comment/up-like-red.png");
+  }
+`;
+
+// 댓글 DOWN 버튼
+export const CommentLikeDownButton = styled.div`
+  /* border: 1px solid red; */
+  width: 20px;
+  height: 20px;
+  background-image: url("/images/logo/comment/down-like.png");
+  background-size: cover;
+  cursor: pointer;
+
+  &:hover {
+    background-image: url("/images/logo/comment/down-like-blue.png");
+  }
+`;
+
+export const CommentLikeCount = styled.span`
+  font-size: 14px;
+  color: #7b858e;
 `;
 
 export const CommentInfoWrap = styled.div`
@@ -357,6 +392,23 @@ export const ReplyWrap = styled.div`
   gap: 10px;
 `;
 
+export const DeleteComment = styled.div`
+  border: 1px solid #7e878b;
+  background-color: #7e878b22;
+  border-radius: 5px;
+  padding: 3px 5px;
+  font-size: 14px;
+  padding: 1px 5px;
+  color: #7e878b;
+  cursor: pointer;
+
+  :hover {
+    color: red;
+    border: 1px solid #f95b54;
+    background-color: #f95b5433;
+  }
+`;
+
 export const Report = styled.button`
   font-size: 14px;
   padding: 1px 0;
@@ -377,4 +429,25 @@ export const Reply = styled.button`
   :hover {
     color: #33383c;
   }
+`;
+
+// 댓글 없는 경우
+export const NoneComment = styled.div`
+  box-shadow: 0px 0px 10px -5px #a3a3a3;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  padding: 30px;
+`;
+
+export const NoneCommentImg = styled.img`
+  width: 40px;
+  height: 40px;
+`;
+
+export const NoneCommentText = styled.p`
+  color: #7b858e;
+  padding-top: 10px;
 `;
