@@ -228,5 +228,25 @@ Toast의 Viewer를 통해 표현적 스타일 부분을 적용해 보여준다. 
 6. 댓글 아래 게시물 리스트 추가하기 - 고민중..
 
 
+12/07 <br>
+게시글, 댓글 삭제 구현 <br>
+게시글 리스트 title 옆 댓글 개수 표시 <br>
+
+# 12/07 마무리 결과
+![testBoard-comment-delete](https://github.com/user-attachments/assets/cedae033-f43f-4f54-89d7-f5d207f50f9f) <br>
+↑ 게시글 및 댓글 삭제 <br>
+
+![testBoard-comment-count](https://github.com/user-attachments/assets/1f3f9925-1ecb-48fb-ba95-f13308efe751) <br>
+↑ 게시글 목록 댓글 개수 표시 <br>
+
+
+이후 해야할 것 <br>
+1. 수정 구현 - 아...
+2. 게시글 목록 검색 추가 - 아...
+3. 댓글 추가 및 수정, 삭제 - 아...
+
+
+
+
 
 
