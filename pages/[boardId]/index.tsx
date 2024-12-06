@@ -129,6 +129,19 @@ export default function UserBoard({
       console.log("게시글 삭제 실패: ", error);
     } else {
       const { data } = await fetchBoardComment(String(router.query.boardId));
+
+      const commentCount = comment.length - 1;
+
+      const { data: updateData, error: updateError } = await supabase
+        .from("page")
+        .update({ commentCount })
+        .eq("id", initialData.id);
+
+      if (updateError) {
+        console.log("page comment count 업데이트 실패: ", updateError.message);
+        return;
+      }
+
       setComment(data);
     }
   };
