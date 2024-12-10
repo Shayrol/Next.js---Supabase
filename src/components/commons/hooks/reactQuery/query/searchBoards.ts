@@ -20,9 +20,10 @@ export interface IBoards {
   };
 }
 
-export const fetchBoards = async (
+export const fetchSearchBoards = async (
   page: number,
-  tag: string | string[] | undefined
+  tag: string | string[] | undefined,
+  keyword: string | string[] | undefined
 ): Promise<{ data: IBoards[]; count: number | null }> => {
   // console.log("page: ", page);
   const supabase = createClient();
@@ -43,6 +44,18 @@ export const fetchBoards = async (
     // 태그 조건 적용
     dataQuery = dataQuery.eq("tag", tag);
     countQuery = countQuery.eq("tag", tag); // count도 동일 조건 적용
+
+    if (keyword !== undefined) {
+      dataQuery = dataQuery.eq("tag", tag).ilike("title", `%${keyword}%`);
+      countQuery = countQuery.eq("tag", tag).ilike("title", `%${keyword}%`);
+    }
+  }
+
+  if (tag === "전체") {
+    if (keyword !== undefined) {
+      dataQuery = dataQuery.ilike("title", `%${keyword}%`);
+      countQuery = countQuery.ilike("title", `%${keyword}%`);
+    }
   }
 
   // 데이터 및 count 결과 가져오기

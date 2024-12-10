@@ -54,6 +54,8 @@ export default function UserBoard({
 
   const color = "#cdcdcd";
 
+  console.log("userLogin: ", userLogin);
+  console.log("initialData: ", initialData);
   console.log("comment: ", comment);
 
   const { register, handleSubmit, trigger, formState, reset } = useForm<IForm>({
@@ -185,8 +187,7 @@ export default function UserBoard({
                 <S.UserInfoWrap>
                   <S.Tag>{initialData.tag}</S.Tag>
                   <S.Created>{initialData.created_at}</S.Created>
-                  {/* <S.Name>{initialData.user.name}</S.Name> */}
-                  <S.Name>{initialData.user_id.name}</S.Name>
+                  <S.Name>{initialData.user.name}</S.Name>
                 </S.UserInfoWrap>
                 <S.MetaInfoWrap>
                   <S.ViewCount>조회수: {initialData.views}</S.ViewCount>
@@ -200,9 +201,6 @@ export default function UserBoard({
                     <Link href={`/${router.query.boardId}/edit`}>수정</Link>
                   </S.Edit>
                   <S.Delete>
-                    {/* <Link href={"/"} onClick={() => onClickDelete("page")}>
-                      삭제
-                    </Link> */}
                     <div onClick={onClickDeleteBoard}>삭제</div>
                   </S.Delete>
                 </S.EditDeleteWrap>
@@ -269,7 +267,7 @@ export default function UserBoard({
                   <S.CommentUserInfoWrap>
                     {/* <S.User isAuthor={boardUserId === el.user_id}> */}
                     <S.User isAuthor={boardUserId === String(el.user_id.id)}>
-                      {loginUserId === el.user_id.id
+                      {boardUserId === el.user_id.id
                         ? "작성자"
                         : el.user_id.name}
                     </S.User>

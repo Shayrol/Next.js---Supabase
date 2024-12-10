@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { ChangeEvent, KeyboardEvent, useEffect, useRef, useState } from "react";
 import * as S from "../styles/userBoards.styles";
 import { GetServerSidePropsContext } from "next";
 import {
@@ -8,6 +8,7 @@ import {
 import { useRouter } from "next/router";
 import Pagination01 from "@/src/components/pagination/01/pagination";
 import Link from "next/link";
+import { fetchSearchBoards } from "@/src/components/commons/hooks/reactQuery/query/searchBoards";
 // import {
 //   fetchBoardComments,
 //   IBoardComments,
@@ -42,6 +43,9 @@ const tags = [
   { name: "질문" },
 ];
 
+// 키워드 구분하기 위함
+const SECRET = "@#$%";
+
 export default function UserBoards({
   initialData,
   count,
@@ -53,45 +57,54 @@ ISSRProps): JSX.Element {
     initialData: initialData,
   });
 
+  console.log("data", data);
   // console.log("commentData", commentData);
 
   const [meta, setMeta] = useState(metaData);
   const [isOpen, setIsOpen] = useState(false);
+  const [keywordState, setKeywordState] = useState<
+    string | string[] | undefined
+  >(undefined);
 
   const router = useRouter();
-  const isFirstMount = useRef(true);
+  const isFirstMountPage = useRef(true);
+  const isFirstMountTag = useRef(true);
   const page = Number(router.query.page) || 1;
   const tag = router.query.tag || "전체";
+  const Keyword = router.query.keyword || undefined;
   const limit = 10;
+
+  console.log("검색 값: ", Keyword);
 
   const pagination: IPage = {
     currentPage: page,
     totalPages: Math.ceil((data.count ?? 10) / limit),
   };
 
-  // 페이지 이동시 - tag 유지 상태로 페이지 이동
+  // pagination 업데이트
   useEffect(() => {
     // 첫 마운트 시 실행 X
-    if (isFirstMount.current) {
-      isFirstMount.current = false;
+    if (isFirstMountPage.current) {
+      isFirstMountPage.current = false;
       return;
     }
     if (!router.query.page) return;
 
     const resultData = async () => {
-      const result = await fetchBoards(page - 1, tag);
+      // const result = await fetchBoards(page - 1, tag);
+      const result = await fetchSearchBoards(page - 1, tag, keywordState);
       setData({ count: result.count, initialData: result.data });
     };
     resultData();
   }, [router.query.page]);
 
+  // tag 업데이트
   useEffect(() => {
     // 첫 마운트 시 실행 X
-    if (isFirstMount.current) {
-      isFirstMount.current = false;
+    if (isFirstMountTag.current) {
+      isFirstMountTag.current = false;
       return;
     }
-
     if (!router.query.tag) return;
 
     const resultData = async () => {
@@ -101,11 +114,25 @@ ISSRProps): JSX.Element {
     resultData();
   }, [router.query.tag]);
 
+  // 검색 업데이트
+  // useEffect(() => {
+  //   // 첫 마운트 시 실행 X
+  //   if (isFirstMount.current) {
+  //     isFirstMount.current = false;
+  //     return;
+  //   }
+
+  //   if (!router.query.keyword) return;
+
+  //   const resultData = async () => {
+  //     const result = await fetchBoards(0, "전체", Keyword);
+  //     setData({ count: result.count, initialData: result.data });
+  //   };
+  //   resultData();
+  // }, [router.query.keyword]);
+
   // 켜뮤니티 사이드 탭 - 전체, 자유, 유머, 질문
   const AsideQuery = async (tag: string) => {
-    const result = await fetchBoards(0, tag);
-
-    setData({ count: result.count, initialData: result.data });
     setMeta({ metaTag: tag, metaPage: 0 });
     setIsOpen(false);
 
@@ -132,7 +159,30 @@ ISSRProps): JSX.Element {
     setIsOpen((prev) => !prev);
   };
 
-  console.log("Imagedata: ", data.initialData);
+  // 검색
+  const onClickSearch = async () => {
+    const result = await fetchSearchBoards(0, tag, keywordState);
+    setData({ count: result.count, initialData: result.data });
+
+    // 현재 queryString에서 page를 제거
+    const { page, ...updatedQuery } = router.query;
+
+    void router.push(
+      {
+        pathname: router.pathname,
+        query: { ...updatedQuery, keyword: keywordState },
+      },
+      undefined,
+      { shallow: true }
+    );
+  };
+
+  // 검색 Enter
+  const onKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      onClickSearch();
+    }
+  };
 
   return (
     <S.Wrap onClick={onClickToggleOpen}>
@@ -176,7 +226,7 @@ ISSRProps): JSX.Element {
                 <S.TagSelectImg src="/images/logo/filter-logo/bottom-arrow.png" />
               </S.MainTag>
               {isOpen ? (
-                <S.TagOptionWrap>
+                <S.TagOptionWrap onClick={() => setIsOpen((prev) => !prev)}>
                   {tags.map((el) => (
                     <S.TagOption key={el.name}>
                       <S.TagOptionBtn onClick={() => AsideQuery(el.name)}>
@@ -194,8 +244,13 @@ ISSRProps): JSX.Element {
                 <S.SearchInput
                   type="input"
                   placeholder="검색어를 입력해 주세요."
+                  defaultValue={keywordState}
+                  onChange={(e) => setKeywordState(e.target.value)}
+                  onKeyDown={onKeyDown}
                 />
-                <S.SearchImg src="/images/logo/filter-logo/search.png" />
+                <S.SearchButton onClick={onClickSearch}>
+                  <S.SearchImg src="/images/logo/filter-logo/search.png" />
+                </S.SearchButton>
               </S.SearchWrap>
               <Link href={`/boardWriter`}>
                 <S.OptionImg src="/images/logo/filter-logo/writer.png" />
@@ -204,36 +259,53 @@ ISSRProps): JSX.Element {
           </S.Filter>
         </S.FilterWrap>
         <S.BoardsList>
-          {data.initialData?.map((el) => (
-            <S.BoardItem key={el.id} onClick={() => router.push(`${el.id}`)}>
-              <S.Id>{el.id}</S.Id> {/* 추후에 추천수 표기 예정 */}
-              <S.BoardInfoWrap>
-                <S.TitleWrap>
-                  <S.Title>{el.title}</S.Title>
-                  <S.CommentCount>
-                    {el.commentCount !== 0 ? `[${el.commentCount}]` : ""}
-                  </S.CommentCount>
-                </S.TitleWrap>
-                <S.UserWrap>
-                  <S.Tag>
-                    {/* 커뮤니티에 자유, 유머, 질문, 영상 등 분류 예정 */}
-                    {el.tag}
-                  </S.Tag>
-                  <S.Created>
-                    {el.created_at ? el.created_at : "Loading.."}
-                  </S.Created>
-                  <S.User>{el.user_id.name}</S.User>
-                </S.UserWrap>
-              </S.BoardInfoWrap>
-              {/* 이미지 부분 */}
-              {el.storage?.length === 0 ? (
-                <S.Img src="/images/placeholders/placeholder-image.svg" />
-              ) : (
-                <S.Img src={el.storage?.[0]} />
-              )}
-            </S.BoardItem>
-          ))}
+          {data?.initialData?.length > 0 ? (
+            data.initialData.map((el) => (
+              <S.BoardItem key={el.id} onClick={() => router.push(`${el.id}`)}>
+                <S.Id>{el.id}</S.Id> {/* 추후에 추천수 표기 예정 */}
+                <S.BoardInfoWrap>
+                  <S.TitleWrap>
+                    <S.Title>
+                      {el.title
+                        .replaceAll(
+                          String(keywordState),
+                          `${SECRET}${keywordState}${SECRET}`
+                        )
+                        .split(SECRET)
+                        .map((el) => (
+                          <S.TextToken isMatched={keywordState === el}>
+                            {el}
+                          </S.TextToken>
+                        ))}
+                    </S.Title>
+                    <S.CommentCount>
+                      {el.commentCount !== 0 ? `[${el.commentCount}]` : ""}
+                    </S.CommentCount>
+                  </S.TitleWrap>
+                  <S.UserWrap>
+                    <S.Tag>
+                      {/* 커뮤니티에 자유, 유머, 질문, 영상 등 분류 예정 */}
+                      {el.tag}
+                    </S.Tag>
+                    <S.Created>
+                      {el.created_at ? el.created_at : "Loading.."}
+                    </S.Created>
+                    <S.User>{el.user_id.name}</S.User>
+                  </S.UserWrap>
+                </S.BoardInfoWrap>
+                {/* 이미지 부분 */}
+                {el.storage?.length === 0 ? (
+                  <S.Img src="/images/placeholders/placeholder-image.svg" />
+                ) : (
+                  <S.Img src={el.storage?.[0]} />
+                )}
+              </S.BoardItem>
+            ))
+          ) : (
+            <S.EmptyMessage>게시물이 없습니다.</S.EmptyMessage>
+          )}
         </S.BoardsList>
+
         <Pagination01 pagination={pagination} />
       </S.BoardsWrap>
     </S.Wrap>
@@ -248,8 +320,10 @@ export const getServerSideProps = async (
     Number(context.query.page) === 0 ? 0 : Number(context.query.page) - 1 || 0;
 
   const tag = context.query.tag || "전체";
+  const keyword = context.query.keyword || undefined;
 
-  const { data, count } = await fetchBoards(page, tag);
+  // const { data, count } = await fetchBoards(page, tag);
+  const { data, count } = await fetchSearchBoards(page, tag, keyword);
   // const { data: commentData } = await fetchBoardComments();
 
   const metaData = {
@@ -265,3 +339,5 @@ export const getServerSideProps = async (
     },
   };
 };
+
+// 검색 다시 하기...

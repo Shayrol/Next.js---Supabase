@@ -10,12 +10,13 @@ export interface IBoard {
   tag: string | string[] | undefined;
   storage: string | null;
   views: number;
-  user_id: {
+  user: {
     id: string;
     name: string;
     email: string;
     picture: string | null;
   };
+  user_id: string;
 }
 
 export const fetchBoard = async (
