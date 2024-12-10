@@ -1,4 +1,4 @@
-11/13 <br>
+![image](https://github.com/user-attachments/assets/c6ddfdbd-0fa0-41d7-9cbd-adc069b659fb)11/13 <br>
 Next.js 에서 Supabase 사용하기 <br>
 기존 파이어베이스보다 다루기 쉬운듯... <br>
 로그인 / 로그아웃 <br>
@@ -246,6 +246,19 @@ Toast의 Viewer를 통해 표현적 스타일 부분을 적용해 보여준다. 
 3. 댓글 추가 및 수정, 삭제 - 아...
 
 
+
+12/10 <br>
+게시글 검색 및 키워드 표시 구현 <br>
+검색 및 태그, 페이지 queryString 저장 및 ssr 요청 <br>
+
+# 12/10 마무리 결과
+![testBoards-search1](https://github.com/user-attachments/assets/fe2889eb-c96f-4017-9f46-7fb2fa13ad8a) <br>
+↑ 게시글 목록 검색 결과 <br>
+
+
+이후 해야할 것 <br>
+1. 게시글 상세 페이지 수정
+2. 게시글 상세 페이지 댓글 + 대댓글 등록, 수정, 삭제 구현
 
 
 
