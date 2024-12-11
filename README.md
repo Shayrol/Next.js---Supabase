@@ -1,4 +1,4 @@
-![image](https://github.com/user-attachments/assets/c6ddfdbd-0fa0-41d7-9cbd-adc069b659fb)11/13 <br>
+11/13 <br>
 Next.js 에서 Supabase 사용하기 <br>
 기존 파이어베이스보다 다루기 쉬운듯... <br>
 로그인 / 로그아웃 <br>
