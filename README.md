@@ -262,4 +262,39 @@ Toast의 Viewer를 통해 표현적 스타일 부분을 적용해 보여준다. 
 
 
 
+12/11 <br>
+게시글 목록의 댓글 수 저장 오류 해결 <br>
+게시글 수정 삭제는 해당 작성자 외에는 할 수가 없다. <br>
+그래서 해당 comment_count 컬럼만 인증된 사람만 수정할 수 있게 하려 했으나 잘 해결되지 못해 우선 작성자, 인증된 유저만 수정할 수 있게 했으며 <br>
+클라이언트에서 접근하지 못하게 하고 있다. 예) 게시글 작성자 id와 로그인한 id가 같으면 수정, 삭제 버튼 생성 및 동작 가능하게 했음 <br>
+
+게시글 수정 페이지 구현 <br>
+
+# 12/11 마무리 결과
+![testBoard-edit1](https://github.com/user-attachments/assets/48efc04f-0eba-4a41-b1cc-e131eb1a7a2d) <br>
+↑ 수정 전 게시글 상세 페이지 <br>
+
+![testBoard-edit2](https://github.com/user-attachments/assets/9cab776c-f42b-43a4-a876-c66238399efc) <br>
+↑ 수정 페이지 <br>
+
+![testBoard-edit3](https://github.com/user-attachments/assets/cb7e6c31-557a-4718-ad80-c1b7873e7bad) <br>
+↑ 수정 후 게시글 상세 페이지 <br>
+
+
+이후 해야할 것 <br>
+1. 댓글 수정 구현
+2. 대댓글 등록, 조회, 수정, 삭제 구현 - 해당 유저 대댓글 클릭 시 유저 아이디 태그 되도록 하기(누가 나의 글을 답글을 달았는지 확인)
+3. 조회수, 추천 구현하기 - 추천은 이번 댓글 수 업데이트 한 것 처럼 인증된 유저만 해당 page 테이블 update하면 될듯
+4. 유저 페이지 구현 - 닉네임, 프로필 사진 수정하기
+
+
+
+
+
+
+
+
+
+
+
 
