@@ -30,15 +30,12 @@ export default function Header({
   const currentPath =
     pathname === "/boardWriter" || router.query.boardId ? "/" : pathname;
 
-  // console.log("login Data: ", userLogin);
-  console.log("router.pathname: ", router.pathname);
   const toggleMenu = () => setIsOpen((prev) => !prev);
 
   // 로그인 상태 확인 / 유저 정보 저장
   const getUser = async () => {
     const session = await supabase.auth.getUser();
     const result = session.data.user;
-    // console.log("login Data: ", result);
     setUserLogin(result);
 
     // 로그인 상태에서만 user table에 저장 실행 - (table에 이미 해당 id가 있으면 유지)

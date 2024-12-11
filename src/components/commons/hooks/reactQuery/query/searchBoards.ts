@@ -11,7 +11,7 @@ export interface IBoards {
   // user_id: string;
   tag: string | string[] | undefined;
   storage: string | null;
-  commentCount: number;
+  comment_count: number;
   user_id: {
     id: string;
     name: string;

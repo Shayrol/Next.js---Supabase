@@ -80,7 +80,9 @@ export default function HamburgerMenu({
           <S.CloseImg src="/images/logo/close.png" onClick={toggleMenu} />
           <S.MenuList>
             <S.SideTabUserName>
-              {userData ? userData.name : "로그인이 필요합니다."}
+              {userData
+                ? userData.name ?? userData?.user_name
+                : "로그인이 필요합니다."}
             </S.SideTabUserName>
             <li>
               {userData ? (

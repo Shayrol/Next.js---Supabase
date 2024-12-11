@@ -272,14 +272,17 @@ ISSRProps): JSX.Element {
                           `${SECRET}${keywordState}${SECRET}`
                         )
                         .split(SECRET)
-                        .map((el) => (
-                          <S.TextToken isMatched={keywordState === el}>
+                        .map((el, index) => (
+                          <S.TextToken
+                            isMatched={keywordState === el}
+                            key={el + index}
+                          >
                             {el}
                           </S.TextToken>
                         ))}
                     </S.Title>
                     <S.CommentCount>
-                      {el.commentCount !== 0 ? `[${el.commentCount}]` : ""}
+                      {el.comment_count !== 0 ? `[${el.comment_count}]` : ""}
                     </S.CommentCount>
                   </S.TitleWrap>
                   <S.UserWrap>

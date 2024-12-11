@@ -54,16 +54,16 @@ export default function UserBoard({
 
   const color = "#cdcdcd";
 
-  console.log("userLogin: ", userLogin);
-  console.log("initialData: ", initialData);
-  console.log("comment: ", comment);
-
   const { register, handleSubmit, trigger, formState, reset } = useForm<IForm>({
     resolver: yupResolver(schemaComment),
     mode: "onChange",
   });
 
   const onClickSubmit = async (data: IForm) => {
+    if (userLogin === null) {
+      alert("로그인 후 이용 가능합니다.");
+    }
+
     const { body } = data;
 
     const { data: dataComment, error: commentError } = await supabase
@@ -75,19 +75,20 @@ export default function UserBoard({
       return;
     }
 
-    const commentCount = comment.length + 1;
+    const comment_count = comment.length;
 
     const { data: updateData, error: updateError } = await supabase
       .from("page")
-      .update({ commentCount })
+      .update({ comment_count: comment_count + 1 })
       .eq("id", initialData.id);
 
     if (updateError) {
-      console.log("page comment count 업데이트 실패: ", updateError.message);
+      console.log(
+        "page comment count 추가 업데이트 실패: ",
+        updateError.message
+      );
       return;
     }
-
-    console.log("page 업데이트 성공: ", updateData);
 
     const refetchComment = await fetchBoardComment(
       String(router.query.boardId)
@@ -132,15 +133,18 @@ export default function UserBoard({
     } else {
       const { data } = await fetchBoardComment(String(router.query.boardId));
 
-      const commentCount = comment.length - 1;
+      const comment_count = comment.length;
 
       const { data: updateData, error: updateError } = await supabase
         .from("page")
-        .update({ commentCount })
+        .update({ comment_count: comment_count - 1 })
         .eq("id", initialData.id);
 
       if (updateError) {
-        console.log("page comment count 업데이트 실패: ", updateError.message);
+        console.log(
+          "page comment count 삭제 업데이트 실패: ",
+          updateError.message
+        );
         return;
       }
 
