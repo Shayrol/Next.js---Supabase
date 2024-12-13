@@ -289,6 +289,27 @@ Toast의 Viewer를 통해 표현적 스타일 부분을 적용해 보여준다. 
 
 
 
+12/13 <br>
+게시물 추천, 비추천 추가 및 게시물 목록 인기순, 최신순 데이터 정렬 구현 <br>
+대댓글 추가 <br>
+
+
+# 12/13 마무리 결과
+![testBoard-reply](https://github.com/user-attachments/assets/124acb4f-c26c-4a8a-86bd-8c67be5fa6fa) <br>
+↑ 대댓글 구현 <br>
+
+![testBoards7](https://github.com/user-attachments/assets/dd315385-3118-4d01-94ff-1a45016c1b56) <br>
+↑ 게시물 목록 최신, 인기 순으로 조회 <br>
+
+이후 해야할 것 <br>
+1. 대댓글 답글 쓰기 버튼 구현 - 입력 창 띄우기
+2. 대댓글 삭제 버튼 추가하기 - 작성자 기준
+3. 대댓글 답글 쓰기시 해당 클릭한 작성자 태그 따오기
+4. 댓글 인기순, 최신순 구현하기
+5. 유저 페이지 구현
+
+
+
 
 
 
