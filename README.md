@@ -296,7 +296,7 @@ Toast의 Viewer를 통해 표현적 스타일 부분을 적용해 보여준다. 
 
 # 12/13 마무리 결과
 ![testBoard-reply](https://github.com/user-attachments/assets/124acb4f-c26c-4a8a-86bd-8c67be5fa6fa) <br>
-↑ 대댓글 구현 <br>
+↑ 대댓글 구현 및 게시물 추천 기능 구현 <br>
 
 ![testBoards7](https://github.com/user-attachments/assets/dd315385-3118-4d01-94ff-1a45016c1b56) <br>
 ↑ 게시물 목록 최신, 인기 순으로 조회 <br>
