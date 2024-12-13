@@ -83,13 +83,25 @@ export const BoardInfoWrap = styled.div`
   min-width: 0;
 `;
 
-export const Id = styled.div`
-  background-color: #ebeef1;
+export const LikeWrap = styled.div`
+  /* background-color: #ebeef1; */
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   min-width: 38px;
   height: 48px;
+  gap: 5px;
+`;
+
+export const LikeCount = styled.span`
+  color: #7b858b;
+  font-size: 12px;
+`;
+
+export const LikeCountImg = styled.img`
+  width: 10px;
+  height: 10px;
 `;
 
 export const TitleWrap = styled.span`
@@ -346,16 +358,6 @@ export const TagOptionBtn = styled.button`
   }
 `;
 
-// export const TagSelect = styled.select`
-//   border: 1px solid red;
-//   border-radius: 5px;
-//   padding: 0 10px;
-// `;
-
-// export const TagOption = styled.option`
-//   border-radius: 5px;
-// `;
-
 // 게시물 작성 및 검색 공간
 export const OptionWrap = styled.div`
   display: flex;
@@ -404,3 +406,37 @@ export const SearchButton = styled.div`
 
 // 검색 이미지
 export const SearchImg = styled.img``;
+
+// 게시물 리스트 옵션 - 인기순, 최신순
+export const BoardsOptWrap = styled.div`
+  /* border: 1px solid red; */
+  display: flex;
+  justify-content: start;
+  align-items: center;
+  padding: 10px 16px 5px 16px;
+  gap: 10px;
+`;
+
+export const BoardsPopular = styled.span<{ boardsOpt: boolean }>`
+  /* border: 1px solid blue; */
+  font-size: 14px;
+  color: ${({ boardsOpt }) => (boardsOpt ? "#16ae81" : "#7b85e")};
+  cursor: pointer;
+
+  :hover {
+    color: #16ae81;
+  }
+`;
+
+export const BoardsAll = styled.span<{ boardsOpt: boolean }>`
+  /* border: 1px solid blue; */
+  font-size: 14px;
+  color: ${({ boardsOpt }) => (boardsOpt ? "#7b85e" : "#16ae81")};
+  cursor: pointer;
+
+  :hover {
+    color: #16ae81;
+  }
+`;
+
+// 16ae81

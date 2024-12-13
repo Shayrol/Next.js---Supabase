@@ -148,10 +148,13 @@ export const EditDeleteWrap = styled.div`
 export const Edit = styled.div`
   border: 1px solid #7b858e;
   border-radius: 5px;
-  font-size: 18px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 16px;
   font-weight: 600;
   color: #7b858e;
-  padding: 2px 10px;
+  padding: 1px 10px;
   cursor: pointer;
 
   :hover {
@@ -162,10 +165,13 @@ export const Edit = styled.div`
 export const Delete = styled.div`
   border: 1px solid #ff4f4f;
   border-radius: 5px;
-  font-size: 18px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 16px;
   font-weight: 600;
+  padding: 1px 10px;
   color: #ff4f4f;
-  padding: 2px 10px;
   cursor: pointer;
 
   :hover {
@@ -173,8 +179,61 @@ export const Delete = styled.div`
   }
 `;
 
-// 게시글 댓글
+// 게시글 추천
+export const LikeCountWrap = styled.div`
+  border-top: 1px solid #f2f4f7;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  padding: 15px;
+`;
 
+export const LikeCountBtn = styled.button`
+  border: 1px solid #dddfe4;
+  border-radius: 5px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: red;
+  padding: 5px 25px;
+  max-width: 88px;
+  width: 100%;
+  gap: 5px;
+
+  :hover {
+    background-color: #f8f9fa;
+  }
+`;
+
+export const UnLikeCountBtn = styled.button`
+  border: 1px solid #dddfe4;
+  border-radius: 5px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: red;
+  padding: 5px 25px;
+  max-width: 88px;
+  width: 100%;
+  gap: 5px;
+
+  :hover {
+    background-color: #f8f9fa;
+  }
+`;
+
+export const LikeCountInfo = styled.span`
+  color: #7b858e;
+  font-size: 14px;
+`;
+
+export const LikeImg = styled.img`
+  width: 15px;
+  height: 15px;
+`;
+
+// 게시글 댓글
 export const CommentWrap = styled.div`
   /* border: 1px solid red; */
   width: 100%;
@@ -296,6 +355,12 @@ export const Error = styled.label`
   width: 100%;
 `;
 
+// 댓글, 대댓글 목록 공간
+export const CommentReplyWrap = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
+
 // 댓글 리스트
 export const CommentListInfoWrap = styled.div<CommentIsAuthor>`
   /* border: 1px solid blue; */
@@ -303,7 +368,7 @@ export const CommentListInfoWrap = styled.div<CommentIsAuthor>`
   flex-direction: row;
   justify-content: start;
   align-items: start;
-  padding: 20px;
+  padding: 12px 12px 12px 20px;
   gap: 15px;
 
   background-color: ${({ isAuthor }) => (isAuthor ? "#f8f9fa" : "#fff")};
@@ -385,7 +450,7 @@ export const CommentBody = styled.div`
   width: 100%;
 `;
 
-export const ReplyWrap = styled.div`
+export const CommentOptWrap = styled.div`
   display: flex;
   width: 100%;
   margin-top: 3px;
@@ -409,7 +474,7 @@ export const DeleteComment = styled.div`
   }
 `;
 
-export const Report = styled.button`
+export const ReportBtn = styled.button`
   font-size: 14px;
   padding: 1px 0;
   color: #f95b54;
@@ -420,7 +485,7 @@ export const Report = styled.button`
   }
 `;
 
-export const Reply = styled.button`
+export const ReplyBtn = styled.button`
   font-size: 14px;
   padding: 1px 0;
   color: #7e878b;
@@ -450,4 +515,20 @@ export const NoneCommentImg = styled.img`
 export const NoneCommentText = styled.p`
   color: #7b858e;
   padding-top: 10px;
+`;
+
+// 대댓글 공간
+export const ReplyWrap = styled.div`
+  background-color: #f8f9fa;
+`;
+
+export const ReplyInfoWrap = styled.div`
+  display: flex;
+  padding: 12px 12px 12px 56px;
+  gap: 10px;
+`;
+
+export const ReplyIcon = styled.span`
+  color: #7b858e;
+  line-height: 1;
 `;

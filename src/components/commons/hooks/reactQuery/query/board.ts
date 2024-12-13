@@ -9,6 +9,8 @@ export interface IBoard {
   tag: string | string[] | undefined;
   storage: string | null;
   views: number;
+  like: number;
+  unlike: number;
   user: {
     id: string;
     name: string;

@@ -3,12 +3,14 @@ import * as S from "../styles/userBoards.styles";
 import { GetServerSidePropsContext } from "next";
 import {
   fetchBoards,
+  fetchBoardsPopular,
   IBoards,
 } from "@/src/components/commons/hooks/reactQuery/query/boards";
 import { useRouter } from "next/router";
 import Pagination01 from "@/src/components/pagination/01/pagination";
 import Link from "next/link";
 import { fetchSearchBoards } from "@/src/components/commons/hooks/reactQuery/query/searchBoards";
+import { createClient } from "@/utils/supabase/component";
 // import {
 //   fetchBoardComments,
 //   IBoardComments,
@@ -57,14 +59,14 @@ ISSRProps): JSX.Element {
     initialData: initialData,
   });
 
-  console.log("data", data);
-  // console.log("commentData", commentData);
-
   const [meta, setMeta] = useState(metaData);
   const [isOpen, setIsOpen] = useState(false);
   const [keywordState, setKeywordState] = useState<
     string | string[] | undefined
   >(undefined);
+  const [boardsOpt, setBoardOpt] = useState(false);
+
+  const supabase = createClient();
 
   const router = useRouter();
   const isFirstMountPage = useRef(true);
@@ -113,23 +115,6 @@ ISSRProps): JSX.Element {
     };
     resultData();
   }, [router.query.tag]);
-
-  // 검색 업데이트
-  // useEffect(() => {
-  //   // 첫 마운트 시 실행 X
-  //   if (isFirstMount.current) {
-  //     isFirstMount.current = false;
-  //     return;
-  //   }
-
-  //   if (!router.query.keyword) return;
-
-  //   const resultData = async () => {
-  //     const result = await fetchBoards(0, "전체", Keyword);
-  //     setData({ count: result.count, initialData: result.data });
-  //   };
-  //   resultData();
-  // }, [router.query.keyword]);
 
   // 켜뮤니티 사이드 탭 - 전체, 자유, 유머, 질문
   const AsideQuery = async (tag: string) => {
@@ -182,6 +167,21 @@ ISSRProps): JSX.Element {
     if (e.key === "Enter") {
       onClickSearch();
     }
+  };
+
+  // 게시물 리스트 옵션
+  const onClickAll = async () => {
+    const result = await fetchBoards(0, "전체");
+
+    setData({ count: result.count, initialData: result.data });
+    setBoardOpt(false);
+  };
+
+  const onClickPopular = async () => {
+    const result = await fetchBoardsPopular(0, "전체");
+
+    setData({ count: result.count, initialData: result.data });
+    setBoardOpt(true);
   };
 
   return (
@@ -257,12 +257,24 @@ ISSRProps): JSX.Element {
               </Link>
             </S.OptionWrap>
           </S.Filter>
+          <S.BoardsOptWrap>
+            <S.BoardsAll boardsOpt={boardsOpt} onClick={onClickAll}>
+              최신
+            </S.BoardsAll>
+            <S.BoardsPopular boardsOpt={boardsOpt} onClick={onClickPopular}>
+              인기
+            </S.BoardsPopular>
+          </S.BoardsOptWrap>
         </S.FilterWrap>
         <S.BoardsList>
           {data?.initialData?.length > 0 ? (
             data.initialData.map((el) => (
               <S.BoardItem key={el.id} onClick={() => router.push(`${el.id}`)}>
-                <S.Id>{el.id}</S.Id> {/* 추후에 추천수 표기 예정 */}
+                <S.LikeWrap>
+                  <S.LikeCountImg src="/images/logo/send.png" />
+                  <S.LikeCount>{el.like}</S.LikeCount>
+                </S.LikeWrap>{" "}
+                {/* 추후에 추천수 표기 예정 */}
                 <S.BoardInfoWrap>
                   <S.TitleWrap>
                     <S.Title>
@@ -343,4 +355,6 @@ export const getServerSideProps = async (
   };
 };
 
-// 검색 다시 하기...
+// 최신, 인기순 추가하기
+// 댓글 추천 추가
+// 대댓글 추가

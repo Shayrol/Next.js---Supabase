@@ -6,7 +6,13 @@ import { GetServerSidePropsContext } from "next";
 import { useRouter } from "next/router";
 import * as S from "../../styles/userBoard.styles";
 import dynamic from "next/dynamic";
-import { ChangeEvent, Dispatch, SetStateAction, useState } from "react";
+import {
+  ChangeEvent,
+  Dispatch,
+  SetStateAction,
+  useEffect,
+  useState,
+} from "react";
 import { User } from "@supabase/supabase-js";
 import Link from "next/link";
 import { createClient } from "@/utils/supabase/component";
@@ -17,12 +23,17 @@ import {
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { schemaComment } from "@/src/components/commons/hooks/yup/validation";
+import {
+  fetchReply,
+  IReply,
+} from "@/src/components/commons/hooks/reactQuery/query/boardCommentReply";
 
 interface ISSRProps {
   initialData: IBoard;
   dataComment: IBoardComment[];
   userLogin: User | null;
   setUserLogin: Dispatch<SetStateAction<User | null>>;
+  reply: IReply[];
 }
 
 const ToastViewer = dynamic(
@@ -40,17 +51,25 @@ export default function UserBoard({
   initialData,
   dataComment,
   userLogin,
+  reply,
 }: ISSRProps): JSX.Element {
   const router = useRouter();
   const [comment, setComment] = useState<IBoardComment[]>(dataComment);
+  const [replyComment, setReplyComment] = useState<IReply[]>(reply);
   const [inputCount, setInputCount] = useState(0);
+  const [like, setLike] = useState<number>(initialData.like);
+  const [unlike, setUnlike] = useState<number>(initialData.unlike);
   const [selectedOption, setSelectedOption] = useState<"popular" | "latest">(
-    "popular"
+    "latest"
   );
 
   const boardUserId = String(initialData.user_id);
   const loginUserId = String(userLogin?.id);
   const supabase = createClient();
+  // console.log("data: ", initialData.id);
+  // console.log("loginUserId: ", loginUserId);
+  // console.log("loginUserId: ", userLogin);
+  console.log("replyComment: ", replyComment);
 
   const color = "#cdcdcd";
 
@@ -152,6 +171,42 @@ export default function UserBoard({
     }
   };
 
+  // 추천
+  const onClickUpLike = async () => {
+    if (userLogin === null) {
+      alert("로그인 후 이용 가능합니다.");
+      return;
+    }
+
+    const { data, error } = await supabase
+      .from("page")
+      .update({ like: like + 1 })
+      .eq("id", initialData.id);
+
+    if (error) {
+      console.log("like count error: ", error.message);
+    }
+    setLike((prev) => prev + 1);
+  };
+
+  // 비추천
+  const onClickDownLike = async () => {
+    if (userLogin === null) {
+      alert("로그인 후 이용 가능합니다.");
+      return;
+    }
+
+    const { data, error } = await supabase
+      .from("page")
+      .update({ unlike: unlike + 1 })
+      .eq("id", initialData.id);
+    if (error) {
+      console.log("error: ", error);
+    }
+    console.log(data);
+    setUnlike((prev) => prev + 1);
+  };
+
   return (
     <S.Wrap>
       {/* <Head> */}
@@ -196,7 +251,7 @@ export default function UserBoard({
                 <S.MetaInfoWrap>
                   <S.ViewCount>조회수: {initialData.views}</S.ViewCount>
                   <S.CommentCount>댓글: {comment.length}</S.CommentCount>
-                  <S.LikeCount>추천: 5</S.LikeCount>
+                  <S.LikeCount>추천: {initialData.like}</S.LikeCount>
                 </S.MetaInfoWrap>
               </S.TitleUserInfoWrap>
               {boardUserId === loginUserId ? (
@@ -215,6 +270,16 @@ export default function UserBoard({
             <S.BoardBody>
               <ToastViewer content={initialData.body} />
             </S.BoardBody>
+            <S.LikeCountWrap>
+              <S.LikeCountBtn onClick={onClickUpLike}>
+                <S.LikeImg src="/images/logo/up-arrow.png" />
+                <S.LikeCountInfo>{like}</S.LikeCountInfo>
+              </S.LikeCountBtn>
+              <S.UnLikeCountBtn onClick={onClickDownLike}>
+                <S.LikeImg src="/images/logo/down-arrow.png" />
+                <S.LikeCountInfo>{unlike}</S.LikeCountInfo>
+              </S.UnLikeCountBtn>
+            </S.LikeCountWrap>
           </S.BoardInfoWrap>
         )}
       </S.BoardWrap>
@@ -256,44 +321,86 @@ export default function UserBoard({
                 최신순
               </S.ListOptBtn>
             </S.CommentListOpt>
-            {comment.map((el) => (
-              <S.CommentListInfoWrap
-                key={el.id}
-                // isAuthor={boardUserId === el.user_id}
-                isAuthor={boardUserId === String(el.user_id.id)}
-              >
-                <S.CommentLikeWrap>
-                  <S.CommentLikeUpButton />
-                  <S.CommentLikeCount>0</S.CommentLikeCount>
-                  <S.CommentLikeDownButton />
-                </S.CommentLikeWrap>
-                <S.CommentInfoWrap>
-                  <S.CommentUserInfoWrap>
-                    {/* <S.User isAuthor={boardUserId === el.user_id}> */}
-                    <S.User isAuthor={boardUserId === String(el.user_id.id)}>
-                      {boardUserId === el.user_id.id
-                        ? "작성자"
-                        : el.user_id.name}
-                    </S.User>
-                    <S.CommentCreated>{el.created_at}</S.CommentCreated>
-                  </S.CommentUserInfoWrap>
-                  <S.CommentBody>{el.body}</S.CommentBody>
+            {comment.map((el) => {
+              // 필터링된 대댓글
+              const filteredReplies = replyComment.filter(
+                (reply) => reply.comment_id === el.id
+              );
+              console.log("rrrrrrrrrrrrrrrrrrrrr: ", filteredReplies);
+              return (
+                <S.CommentReplyWrap>
+                  <S.CommentListInfoWrap
+                    key={el.id}
+                    isAuthor={boardUserId === String(el.user_id.id)}
+                  >
+                    <S.CommentLikeWrap>
+                      <S.CommentLikeUpButton />
+                      <S.CommentLikeCount>0</S.CommentLikeCount>
+                      <S.CommentLikeDownButton />
+                    </S.CommentLikeWrap>
+                    <S.CommentInfoWrap>
+                      <S.CommentUserInfoWrap>
+                        <S.User
+                          isAuthor={boardUserId === String(el.user_id.id)}
+                        >
+                          {boardUserId === el.user_id.id
+                            ? "작성자"
+                            : el.user_id.name}
+                        </S.User>
+                        <S.CommentCreated>{el.created_at}</S.CommentCreated>
+                      </S.CommentUserInfoWrap>
+                      <S.CommentBody>{el.body}</S.CommentBody>
+                      <S.CommentOptWrap>
+                        {loginUserId === el.user_id.id ? (
+                          <S.DeleteComment
+                            onClick={() => onClickDeleteComment(el.id)}
+                          >
+                            삭제
+                          </S.DeleteComment>
+                        ) : null}
+                        <S.ReportBtn>신고</S.ReportBtn>
+                        <S.ReplyBtn>답글 쓰기</S.ReplyBtn>
+                      </S.CommentOptWrap>
+                    </S.CommentInfoWrap>
+                  </S.CommentListInfoWrap>
+
+                  {/* 댓글 입력 추가하기 */}
+                  {/* 대댓글 */}
                   <S.ReplyWrap>
-                    {loginUserId === el.user_id.id ? (
-                      <S.DeleteComment
-                        onClick={() => onClickDeleteComment(el.id)}
-                      >
-                        삭제
-                      </S.DeleteComment>
-                    ) : (
-                      <></>
-                    )}
-                    <S.Report>신고</S.Report>
-                    <S.Reply>답글 쓰기</S.Reply>
+                    {filteredReplies.map((reply) => (
+                      <S.ReplyInfoWrap key={reply.id}>
+                        <S.ReplyIcon>ㄴ</S.ReplyIcon>
+                        <S.CommentInfoWrap>
+                          <S.CommentUserInfoWrap>
+                            <S.User
+                              isAuthor={
+                                boardUserId === String(reply.user_id.id)
+                              }
+                            >
+                              {boardUserId === String(reply.user_id.id)
+                                ? "작성자"
+                                : reply.user_id.name}
+                            </S.User>
+                            <S.CommentCreated>
+                              {reply.created_at}
+                            </S.CommentCreated>
+                          </S.CommentUserInfoWrap>
+                          <S.CommentBody>{reply.body}</S.CommentBody>
+                          <S.CommentOptWrap>
+                            {loginUserId === String(reply.user_id.id) ? (
+                              <S.DeleteComment>삭제</S.DeleteComment>
+                            ) : null}
+                            <S.ReportBtn>신고</S.ReportBtn>
+                            <S.ReplyBtn>답글 쓰기</S.ReplyBtn>
+                          </S.CommentOptWrap>
+                        </S.CommentInfoWrap>
+                        {/* 댓글 입력 추가하기 */}
+                      </S.ReplyInfoWrap>
+                    ))}
                   </S.ReplyWrap>
-                </S.CommentInfoWrap>
-              </S.CommentListInfoWrap>
-            ))}
+                </S.CommentReplyWrap>
+              );
+            })}
           </S.CommentListWrap>
         ) : (
           <S.NoneComment>
@@ -313,11 +420,53 @@ export const getServerSideProps = async (
 
   const { data } = await fetchBoard(boardId);
   const { data: dataComment } = await fetchBoardComment(boardId);
+  const { data: reply } = await fetchReply(boardId);
 
   return {
     props: {
       initialData: data,
       dataComment,
+      reply: reply,
     },
   };
 };
+
+// {comment.map((el) => (
+//   <S.CommentListInfoWrap
+//     key={el.id}
+//     // isAuthor={boardUserId === el.user_id}
+//     isAuthor={boardUserId === String(el.user_id.id)}
+//   >
+//     <S.CommentLikeWrap>
+//       <S.CommentLikeUpButton />
+//       <S.CommentLikeCount>0</S.CommentLikeCount>
+//       <S.CommentLikeDownButton />
+//     </S.CommentLikeWrap>
+//     <S.CommentInfoWrap>
+//       <S.CommentUserInfoWrap>
+//         {/* <S.User isAuthor={boardUserId === el.user_id}> */}
+//         <S.User isAuthor={boardUserId === String(el.user_id.id)}>
+//           {boardUserId === el.user_id.id
+//             ? "작성자"
+//             : el.user_id.name}
+//         </S.User>
+//         <S.CommentCreated>{el.created_at}</S.CommentCreated>
+//       </S.CommentUserInfoWrap>
+//       <S.CommentBody>{el.body}</S.CommentBody>
+//       <S.ReplyWrap>
+//         {loginUserId === el.user_id.id ? (
+//           <S.DeleteComment
+//             onClick={() => onClickDeleteComment(el.id)}
+//           >
+//             삭제
+//           </S.DeleteComment>
+//         ) : (
+//           <></>
+//         )}
+//         <S.Report>신고</S.Report>
+//         <S.Reply>답글 쓰기</S.Reply>
+//       </S.ReplyWrap>
+//     </S.CommentInfoWrap>
+//     <div>{}</div>
+//   </S.CommentListInfoWrap>
+// ))}
