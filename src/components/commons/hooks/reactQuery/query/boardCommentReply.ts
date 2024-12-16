@@ -11,20 +11,21 @@ export interface IReply {
     id: number;
     name: string;
     email: string;
-    picture: string;
+    picture: string | null;
   };
 }
 
-export const fetchReply = async (board_id: string) => {
+export const fetchReply = async (
+  board_id: string
+): Promise<{ data: IReply[] }> => {
   const supabase = createClient();
 
   const { data, error } = await supabase
     .from("reply")
     .select(`*, user_id:users(id, name, email, picture)`)
     .eq("board_id", board_id)
-    .order("created_at", { ascending: false });
+    .order("created_at", { ascending: true });
 
-  // , user_id:users(id, name, email, picture
   if (error) {
     console.log("Error fetching reply: ", error.message);
     return { data: [] };

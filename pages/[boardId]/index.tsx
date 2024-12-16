@@ -22,7 +22,10 @@ import {
 } from "@/src/components/commons/hooks/reactQuery/query/boardComment";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { schemaComment } from "@/src/components/commons/hooks/yup/validation";
+import {
+  schemaComment,
+  schemaReply,
+} from "@/src/components/commons/hooks/yup/validation";
 import {
   fetchReply,
   IReply,
@@ -47,6 +50,10 @@ export interface IForm {
   body: string;
 }
 
+export interface IFormReply {
+  bodyReply: string;
+}
+
 export default function UserBoard({
   initialData,
   dataComment,
@@ -56,7 +63,11 @@ export default function UserBoard({
   const router = useRouter();
   const [comment, setComment] = useState<IBoardComment[]>(dataComment);
   const [replyComment, setReplyComment] = useState<IReply[]>(reply);
+  const [commentInputVisible, setCommentInputVisible] = useState<number | null>(
+    null
+  );
   const [inputCount, setInputCount] = useState(0);
+  const [inputCountComment, setInputCountComment] = useState(0);
   const [like, setLike] = useState<number>(initialData.like);
   const [unlike, setUnlike] = useState<number>(initialData.unlike);
   const [selectedOption, setSelectedOption] = useState<"popular" | "latest">(
@@ -66,18 +77,27 @@ export default function UserBoard({
   const boardUserId = String(initialData.user_id);
   const loginUserId = String(userLogin?.id);
   const supabase = createClient();
-  // console.log("data: ", initialData.id);
-  // console.log("loginUserId: ", loginUserId);
-  // console.log("loginUserId: ", userLogin);
-  console.log("replyComment: ", replyComment);
 
   const color = "#cdcdcd";
 
+  // 댓글 useForm
   const { register, handleSubmit, trigger, formState, reset } = useForm<IForm>({
     resolver: yupResolver(schemaComment),
     mode: "onChange",
   });
 
+  // 대댓글 useForm
+  const {
+    register: registerReply,
+    handleSubmit: handleSubmitReply,
+    formState: formStateReply,
+    reset: resetReply,
+  } = useForm({
+    resolver: yupResolver(schemaReply), // 대댓글 유효성 검사
+    mode: "onChange",
+  });
+
+  // 댓글
   const onClickSubmit = async (data: IForm) => {
     if (userLogin === null) {
       alert("로그인 후 이용 가능합니다.");
@@ -207,6 +227,50 @@ export default function UserBoard({
     setUnlike((prev) => prev + 1);
   };
 
+  // 대댓글
+  const onClickSubmitComment = async (data: IFormReply) => {
+    if (userLogin === null) {
+      alert("로그인 후 이용 가능합니다.");
+    }
+
+    const { bodyReply } = data;
+
+    const { data: dataComment, error: commentError } = await supabase
+      .from("reply")
+      .insert([
+        {
+          board_id: router.query.boardId,
+          comment_id: commentInputVisible,
+          body: bodyReply,
+        },
+      ]);
+
+    if (commentError) {
+      console.log("대댓글 저장 실패: ", commentError.message);
+      return;
+    }
+
+    const BoardId = String(router.query.boardId);
+
+    const { data: reply } = await fetchReply(BoardId);
+    setReplyComment(reply);
+    resetReply(); // 텍스트 입력 초기화
+    setInputCountComment(0);
+    setCommentInputVisible(null);
+  };
+
+  // 대댓글 입력 수
+  const onTextareaHandlerComment = (e: ChangeEvent<HTMLTextAreaElement>) => {
+    setInputCountComment(
+      e.target.value.replace(/[\0-\x7f]|([0-\u07ff]|(.))/g, "$&$1$2").length
+    );
+  };
+
+  // 대댓글 입력창 띄우기
+  const onReplyClick = (commentId: number) => {
+    setCommentInputVisible((prev) => (prev === commentId ? null : commentId));
+  };
+
   return (
     <S.Wrap>
       {/* <Head> */}
@@ -309,16 +373,16 @@ export default function UserBoard({
           <S.CommentListWrap>
             <S.CommentListOpt>
               <S.ListOptBtn
-                isSelected={selectedOption === "popular"}
-                onClick={() => handleOptionClick("popular")}
-              >
-                인기순
-              </S.ListOptBtn>
-              <S.ListOptBtn
                 isSelected={selectedOption === "latest"}
                 onClick={() => handleOptionClick("latest")}
               >
                 최신순
+              </S.ListOptBtn>
+              <S.ListOptBtn
+                isSelected={selectedOption === "popular"}
+                onClick={() => handleOptionClick("popular")}
+              >
+                인기순
               </S.ListOptBtn>
             </S.CommentListOpt>
             {comment.map((el) => {
@@ -326,7 +390,6 @@ export default function UserBoard({
               const filteredReplies = replyComment.filter(
                 (reply) => reply.comment_id === el.id
               );
-              console.log("rrrrrrrrrrrrrrrrrrrrr: ", filteredReplies);
               return (
                 <S.CommentReplyWrap>
                   <S.CommentListInfoWrap
@@ -359,10 +422,35 @@ export default function UserBoard({
                           </S.DeleteComment>
                         ) : null}
                         <S.ReportBtn>신고</S.ReportBtn>
-                        <S.ReplyBtn>답글 쓰기</S.ReplyBtn>
+                        <S.ReplyBtn onClick={() => onReplyClick(el.id)}>
+                          답글 쓰기
+                        </S.ReplyBtn>
                       </S.CommentOptWrap>
                     </S.CommentInfoWrap>
                   </S.CommentListInfoWrap>
+
+                  {commentInputVisible === el.id && (
+                    <S.TextAreaWrapCom
+                      onSubmit={handleSubmitReply(onClickSubmitComment)}
+                    >
+                      <S.ReplyIcon>ㄴ</S.ReplyIcon>
+                      <S.TextAreaInfoWrapCom>
+                        <S.TextAreaCom
+                          {...registerReply("bodyReply")}
+                          onChange={onTextareaHandlerComment}
+                          maxLength={1000}
+                          placeholder="주제와 무관한 댓글, 타인의 권리를 침해하거나 며예를 훼손하는 게시물은 별도의 통보 없이 제재를 받을 수 있습니다."
+                        />
+                        <S.TextButtonWrapCom>
+                          <S.TextCountCom>
+                            ({inputCountComment}/1000)
+                          </S.TextCountCom>
+                          <S.CommentBtnCom>작성</S.CommentBtnCom>
+                        </S.TextButtonWrapCom>
+                        <S.Error>{formState.errors.body?.message}</S.Error>
+                      </S.TextAreaInfoWrapCom>
+                    </S.TextAreaWrapCom>
+                  )}
 
                   {/* 댓글 입력 추가하기 */}
                   {/* 대댓글 */}
@@ -374,12 +462,12 @@ export default function UserBoard({
                           <S.CommentUserInfoWrap>
                             <S.User
                               isAuthor={
-                                boardUserId === String(reply.user_id.id)
+                                boardUserId === String(reply.user_id?.id)
                               }
                             >
-                              {boardUserId === String(reply.user_id.id)
+                              {boardUserId === String(reply.user_id?.id)
                                 ? "작성자"
-                                : reply.user_id.name}
+                                : reply.user_id?.name}
                             </S.User>
                             <S.CommentCreated>
                               {reply.created_at}
@@ -387,7 +475,7 @@ export default function UserBoard({
                           </S.CommentUserInfoWrap>
                           <S.CommentBody>{reply.body}</S.CommentBody>
                           <S.CommentOptWrap>
-                            {loginUserId === String(reply.user_id.id) ? (
+                            {loginUserId === String(reply.user_id?.id) ? (
                               <S.DeleteComment>삭제</S.DeleteComment>
                             ) : null}
                             <S.ReportBtn>신고</S.ReportBtn>

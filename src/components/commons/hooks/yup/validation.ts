@@ -9,3 +9,7 @@ export const schema = yup.object({
 export const schemaComment = yup.object({
   body: yup.string().required("내용을 입력해주세요."),
 });
+
+export const schemaReply = yup.object({
+  bodyReply: yup.string().required("내용을 입력해주세요."),
+});

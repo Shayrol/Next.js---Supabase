@@ -315,6 +315,63 @@ export const CommentBtn = styled.button`
   }
 `;
 
+// 대댓글 입력
+export const TextAreaWrapCom = styled.form`
+  background-color: #f8f9fa;
+  display: flex;
+  padding: 20px 20px 20px 56px;
+  gap: 10px;
+`;
+
+export const TextAreaInfoWrapCom = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  /* gap: 7px; */
+  /* padding: 20px; */
+  position: relative;
+  width: 100%;
+`;
+
+export const TextAreaCom = styled.textarea`
+  border: 1px solid #dddfe4;
+  width: 100%;
+  height: 70px;
+  outline: none;
+  resize: none;
+  font-size: 13px;
+  padding: 5px;
+`;
+
+export const TextButtonWrapCom = styled.div`
+  border: 1px solid #dddfe4;
+  border-top: none;
+  background-color: #fff;
+  display: flex;
+  justify-content: end;
+  align-items: center;
+  width: 100%;
+  gap: 15px;
+`;
+
+export const TextCountCom = styled.div`
+  /* border: 1px solid red; */
+  color: #7b858e;
+`;
+
+export const CommentBtnCom = styled.button`
+  border: 1px solid #46cfa7;
+  background-color: #46cfa7;
+  color: #fff;
+  font-weight: 600;
+  padding: 4px 25px;
+
+  :hover {
+    background-color: #16ae81;
+  }
+`;
+
 // 댓글 리스트
 export const CommentListWrap = styled.div`
   /* border: 1px solid red; */
@@ -417,6 +474,7 @@ export const CommentLikeCount = styled.span`
 `;
 
 export const CommentInfoWrap = styled.div`
+  /* border: 1px solid red; */
   display: flex;
   flex-direction: column;
   gap: 10px;
