@@ -7,6 +7,7 @@ export interface IReply {
   board_id: number;
   created_at: string;
   body: string;
+  name: string;
   user_id: {
     id: number;
     name: string;

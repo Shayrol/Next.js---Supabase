@@ -506,6 +506,19 @@ export const CommentCreated = styled.div`
 export const CommentBody = styled.div`
   display: flex;
   width: 100%;
+  gap: 10px;
+`;
+
+// 대댓글 답변 시 추가되는 태그
+export const TagName = styled.span`
+  border-radius: 5px;
+  background-color: #d1f2e8;
+  color: #16ae81;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 12px;
+  padding: 0 3px;
 `;
 
 export const CommentOptWrap = styled.div`

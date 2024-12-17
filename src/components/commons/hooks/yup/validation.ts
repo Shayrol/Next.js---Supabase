@@ -13,3 +13,7 @@ export const schemaComment = yup.object({
 export const schemaReply = yup.object({
   bodyReply: yup.string().required("내용을 입력해주세요."),
 });
+
+export const schemaCommentReply = yup.object({
+  bodyCommentReply: yup.string().required("내용을 입력해주세요."),
+});

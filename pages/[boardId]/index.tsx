@@ -24,6 +24,7 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import {
   schemaComment,
+  schemaCommentReply,
   schemaReply,
 } from "@/src/components/commons/hooks/yup/validation";
 import {
@@ -54,6 +55,10 @@ export interface IFormReply {
   bodyReply: string;
 }
 
+export interface IFormCommentReply {
+  bodyCommentReply: string;
+}
+
 export default function UserBoard({
   initialData,
   dataComment,
@@ -66,10 +71,26 @@ export default function UserBoard({
   const [commentInputVisible, setCommentInputVisible] = useState<number | null>(
     null
   );
+  const [replyInputVisible, setReplyInputVisible] = useState<number | null>(
+    null
+  );
+  // 대댓글의 대댓글 위한 대댓글의 id
+  const [commentReplyId, setCommentReplyId] = useState<number | null>(null);
+
   const [inputCount, setInputCount] = useState(0);
   const [inputCountComment, setInputCountComment] = useState(0);
+  const [inputCountCommentReply, setInputCountCommentReply] = useState(0);
   const [like, setLike] = useState<number>(initialData.like);
   const [unlike, setUnlike] = useState<number>(initialData.unlike);
+
+  // 댓글 추천 데이터
+  const [likeComment, setLikeComment] = useState<IBoardComment[]>(dataComment);
+  const [unlikeComment, setUnlikeComment] =
+    useState<IBoardComment[]>(dataComment);
+
+  console.log("likeComment", likeComment[0].like);
+
+  // 댓글 최신순, 인기순 선택 옵션
   const [selectedOption, setSelectedOption] = useState<"popular" | "latest">(
     "latest"
   );
@@ -77,6 +98,9 @@ export default function UserBoard({
   const boardUserId = String(initialData.user_id);
   const loginUserId = String(userLogin?.id);
   const supabase = createClient();
+
+  // console.log("initialData: ", initialData);
+  // console.log("dataComment: ", dataComment);
 
   const color = "#cdcdcd";
 
@@ -94,6 +118,17 @@ export default function UserBoard({
     reset: resetReply,
   } = useForm({
     resolver: yupResolver(schemaReply), // 대댓글 유효성 검사
+    mode: "onChange",
+  });
+
+  // 대댓글의 대댓글 useForm
+  const {
+    register: registerCommentReply,
+    handleSubmit: handleSubmitCommentReply,
+    formState: formStateCommentReply,
+    reset: resetCommentReply,
+  } = useForm({
+    resolver: yupResolver(schemaCommentReply), // 대댓글 유효성 검사
     mode: "onChange",
   });
 
@@ -271,6 +306,126 @@ export default function UserBoard({
     setCommentInputVisible((prev) => (prev === commentId ? null : commentId));
   };
 
+  // 대댓글 추천
+  const onClickUpLikeComment = async (comment: IBoardComment) => {
+    if (userLogin === null) {
+      alert("로그인 후 이용 가능합니다.");
+      return;
+    }
+    console.log("comment: ", comment);
+
+    const { data, error } = await supabase
+      .from("comment")
+      .update({ like: comment.like + 1 })
+      .eq("id", comment.id);
+
+    if (error) {
+      console.log("like count error: ", error.message);
+    }
+
+    setLikeComment((prev) =>
+      prev.map((el) =>
+        el.id === comment.id ? { ...el, like: el.like + 1 } : el
+      )
+    );
+  };
+
+  const onClickDownLikeComment = async (comment: IBoardComment) => {
+    if (userLogin === null) {
+      alert("로그인 후 이용 가능합니다.");
+      return;
+    }
+    console.log("comment: ", comment);
+
+    const { data, error } = await supabase
+      .from("comment")
+      .update({ unlike: comment.unlike + 1 })
+      .eq("id", comment.id);
+
+    if (error) {
+      console.log("like count error: ", error.message);
+    }
+
+    setUnlikeComment((prev) =>
+      prev.map((el) =>
+        el.id === comment.id ? { ...el, unlike: el.unlike + 1 } : el
+      )
+    );
+  };
+
+  // ✨ 대댓글의 답변 시 실행되는 함수들
+
+  // 대댓글의 댓글 입력창 띄우기
+  const onCommentReplyClick = (reply: IReply) => {
+    setReplyInputVisible((prev) => (prev === reply.id ? null : reply.id));
+    setCommentReplyId((prev) =>
+      prev === reply.comment_id ? null : reply.comment_id
+    );
+    // 답글 쓰기 클릭 시 입력 내용 초기화
+    setInputCountComment(0);
+    resetCommentReply();
+  };
+
+  console.log("commentReplyId: ", commentReplyId);
+  console.log("replyInputVisible: ", replyInputVisible);
+
+  // 대댓글의 댓글
+  const onClickSubmitCommentReply =
+    (reply: IReply) => async (data: IFormCommentReply) => {
+      if (userLogin === null) {
+        alert("로그인 후 이용 가능합니다.");
+        return;
+      }
+
+      const { bodyCommentReply } = data;
+
+      const { data: dataComment, error: commentError } = await supabase
+        .from("reply")
+        .insert([
+          {
+            board_id: router.query.boardId,
+            comment_id: commentReplyId,
+            body: bodyCommentReply,
+            name: reply.user_id.name, // 여기에 reply 값 활용
+          },
+        ]);
+
+      if (commentError) {
+        console.log("대댓글 저장 실패: ", commentError.message);
+        return;
+      }
+
+      const BoardId = String(router.query.boardId);
+
+      const { data: replyComment } = await fetchReply(BoardId);
+      setReplyComment(replyComment);
+      resetCommentReply(); // 텍스트 입력 초기화
+      setInputCountCommentReply(0);
+      setReplyInputVisible(null);
+      setCommentReplyId(null);
+    };
+
+  // 대댓글의 댓글 입력 수
+  const onTextareaHandlerCommentReply = (
+    e: ChangeEvent<HTMLTextAreaElement>
+  ) => {
+    setInputCountComment(
+      e.target.value.replace(/[\0-\x7f]|([0-\u07ff]|(.))/g, "$&$1$2").length
+    );
+  };
+
+  // 대댓글 삭제
+  const onClickDeleteReply = async (id: number) => {
+    const { error } = await supabase.from("reply").delete().eq("id", id);
+    console.log("replyId: ", id);
+    if (error) {
+      console.log("게시글 삭제 실패: ", error);
+    } else {
+      const { data: reply } = await fetchReply(String(router.query.boardId));
+      setReplyComment(reply);
+    }
+  };
+
   return (
     <S.Wrap>
       {/* <Head> */}
@@ -385,11 +540,12 @@ export default function UserBoard({
                 인기순
               </S.ListOptBtn>
             </S.CommentListOpt>
-            {comment.map((el) => {
+            {comment.map((el, index) => {
               // 필터링된 대댓글
               const filteredReplies = replyComment.filter(
                 (reply) => reply.comment_id === el.id
               );
+              // console.log("filteredReplies: ", filteredReplies);
               return (
                 <S.CommentReplyWrap>
                   <S.CommentListInfoWrap
@@ -397,9 +553,15 @@ export default function UserBoard({
                     isAuthor={boardUserId === String(el.user_id.id)}
                   >
                     <S.CommentLikeWrap>
-                      <S.CommentLikeUpButton />
-                      <S.CommentLikeCount>0</S.CommentLikeCount>
-                      <S.CommentLikeDownButton />
+                      <S.CommentLikeUpButton
+                        onClick={() => onClickUpLikeComment(el)}
+                      />
+                      <S.CommentLikeCount>
+                        {likeComment[index].like - unlikeComment[index].unlike}
+                      </S.CommentLikeCount>
+                      <S.CommentLikeDownButton
+                        onClick={() => onClickDownLikeComment(el)}
+                      />
                     </S.CommentLikeWrap>
                     <S.CommentInfoWrap>
                       <S.CommentUserInfoWrap>
@@ -456,34 +618,82 @@ export default function UserBoard({
                   {/* 대댓글 */}
                   <S.ReplyWrap>
                     {filteredReplies.map((reply) => (
-                      <S.ReplyInfoWrap key={reply.id}>
-                        <S.ReplyIcon>ㄴ</S.ReplyIcon>
-                        <S.CommentInfoWrap>
-                          <S.CommentUserInfoWrap>
-                            <S.User
-                              isAuthor={
-                                boardUserId === String(reply.user_id?.id)
-                              }
-                            >
-                              {boardUserId === String(reply.user_id?.id)
-                                ? "작성자"
-                                : reply.user_id?.name}
-                            </S.User>
-                            <S.CommentCreated>
-                              {reply.created_at}
-                            </S.CommentCreated>
-                          </S.CommentUserInfoWrap>
-                          <S.CommentBody>{reply.body}</S.CommentBody>
-                          <S.CommentOptWrap>
-                            {loginUserId === String(reply.user_id?.id) ? (
-                              <S.DeleteComment>삭제</S.DeleteComment>
-                            ) : null}
-                            <S.ReportBtn>신고</S.ReportBtn>
-                            <S.ReplyBtn>답글 쓰기</S.ReplyBtn>
-                          </S.CommentOptWrap>
-                        </S.CommentInfoWrap>
-                        {/* 댓글 입력 추가하기 */}
-                      </S.ReplyInfoWrap>
+                      <div>
+                        <S.ReplyInfoWrap key={reply.id}>
+                          <S.ReplyIcon>ㄴ</S.ReplyIcon>
+                          <S.CommentInfoWrap>
+                            <S.CommentUserInfoWrap>
+                              <S.User
+                                isAuthor={
+                                  boardUserId === String(reply.user_id?.id)
+                                }
+                              >
+                                {boardUserId === String(reply.user_id?.id)
+                                  ? "작성자"
+                                  : reply.user_id?.name}
+                              </S.User>
+                              <S.CommentCreated>
+                                {reply.created_at}
+                              </S.CommentCreated>
+                            </S.CommentUserInfoWrap>
+                            <S.CommentBody>
+                              {/* 대댓글 답변 시 이름 태그 붙음 */}
+                              {reply.name !== null ? (
+                                <S.TagName>
+                                  {initialData.user.name === reply.name
+                                    ? "작성자"
+                                    : reply.name}
+                                </S.TagName>
+                              ) : (
+                                <></>
+                              )}
+                              {reply.body}
+                            </S.CommentBody>
+                            <S.CommentOptWrap>
+                              {loginUserId === String(reply.user_id?.id) ? (
+                                <S.DeleteComment
+                                  onClick={() => onClickDeleteReply(reply.id)}
+                                >
+                                  삭제
+                                </S.DeleteComment>
+                              ) : null}
+                              <S.ReportBtn>신고</S.ReportBtn>
+                              <S.ReplyBtn
+                                onClick={() => onCommentReplyClick(reply)}
+                              >
+                                답글 쓰기
+                              </S.ReplyBtn>
+                            </S.CommentOptWrap>
+                          </S.CommentInfoWrap>
+                          {/* 댓글 입력 추가하기 */}
+                        </S.ReplyInfoWrap>
+                        {replyInputVisible === reply.id && (
+                          <S.TextAreaWrapCom
+                            onSubmit={handleSubmitCommentReply(
+                              onClickSubmitCommentReply(reply)
+                            )}
+                          >
+                            <S.ReplyIcon>ㄴ</S.ReplyIcon>
+                            <S.TextAreaInfoWrapCom>
+                              <S.TextAreaCom
+                                {...registerCommentReply("bodyCommentReply")}
+                                onChange={onTextareaHandlerCommentReply}
+                                maxLength={1000}
+                                placeholder="주제와 무관한 댓글, 타인의 권리를 침해하거나 며예를 훼손하는 게시물은 별도의 통보 없이 제재를 받을 수 있습니다."
+                              />
+                              <S.TextButtonWrapCom>
+                                <S.TextCountCom>
+                                  ({inputCountCommentReply}/1000)
+                                </S.TextCountCom>
+                                <S.CommentBtnCom>작성</S.CommentBtnCom>
+                              </S.TextButtonWrapCom>
+                              <S.Error>
+                                {formState.errors.body?.message}
+                              </S.Error>
+                            </S.TextAreaInfoWrapCom>
+                          </S.TextAreaWrapCom>
+                        )}
+                      </div>
                     ))}
                   </S.ReplyWrap>
                 </S.CommentReplyWrap>

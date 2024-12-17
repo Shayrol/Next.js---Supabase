@@ -6,6 +6,8 @@ export interface IBoardComment {
   board_id: number;
   created_at: string;
   body: string;
+  like: number;
+  unlike: number;
   user_id: {
     id: string;
     name: string;
