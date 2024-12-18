@@ -171,14 +171,14 @@ ISSRProps): JSX.Element {
 
   // 게시물 리스트 옵션
   const onClickAll = async () => {
-    const result = await fetchBoards(0, "전체");
+    const result = await fetchBoards(0, router.query.tag ?? "전체");
 
     setData({ count: result.count, initialData: result.data });
     setBoardOpt(false);
   };
 
   const onClickPopular = async () => {
-    const result = await fetchBoardsPopular(0, "전체");
+    const result = await fetchBoardsPopular(0, router.query.tag ?? "전체");
 
     setData({ count: result.count, initialData: result.data });
     setBoardOpt(true);

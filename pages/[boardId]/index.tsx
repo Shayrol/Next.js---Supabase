@@ -165,7 +165,8 @@ export default function UserBoard({
     }
 
     const refetchComment = await fetchBoardComment(
-      String(router.query.boardId)
+      String(router.query.boardId),
+      selectedOption
     );
     setComment(refetchComment.data);
     reset(); // 텍스트 입력 초기화
@@ -180,8 +181,14 @@ export default function UserBoard({
   };
 
   // 댓글 인기, 최신순
-  const handleOptionClick = (option: "popular" | "latest") => {
+  const handleOptionClick = async (option: "popular" | "latest") => {
     setSelectedOption(option);
+    const { data } = await fetchBoardComment(
+      String(router.query.boardId),
+      option
+    );
+    setComment(data);
+    setLikeComment(data);
   };
 
   // 게시글 삭제
@@ -205,7 +212,10 @@ export default function UserBoard({
     if (error) {
       console.log("게시글 삭제 실패: ", error);
     } else {
-      const { data } = await fetchBoardComment(String(router.query.boardId));
+      const { data } = await fetchBoardComment(
+        String(router.query.boardId),
+        selectedOption
+      );
 
       const comment_count = comment.length;
 
@@ -233,9 +243,32 @@ export default function UserBoard({
       return;
     }
 
+    // 추천을 했는지 추천한 유저 데이터 가져오기
+    const { data: currentComment, error: fetchError } = await supabase
+      .from("page")
+      .select("like_users")
+      .eq("id", router.query.boardId)
+      .single();
+
+    if (fetchError) {
+      console.error("Error fetching comment:", fetchError.message);
+      return;
+    }
+
+    // 현재 로그인한 유저 id와 data 저장 확인 후 추천 했는지 확인
+    const likeUsers = currentComment.like_users || [];
+    if (likeUsers.includes(userLogin.id)) {
+      alert("이미 추천하셨습니다.");
+      return;
+    }
+
+    // 추천 카운트 증가 및 추천한 유저 정보 저장
     const { data, error } = await supabase
       .from("page")
-      .update({ like: like + 1 })
+      .update({
+        like: like + 1,
+        like_users: [...likeUsers, userLogin.id],
+      })
       .eq("id", initialData.id);
 
     if (error) {
@@ -251,14 +284,34 @@ export default function UserBoard({
       return;
     }
 
+    const { data: currentComment, error: fetchError } = await supabase
+      .from("page")
+      .select("like_users")
+      .eq("id", router.query.boardId)
+      .single();
+
+    if (fetchError) {
+      console.error("Error fetching comment:", fetchError.message);
+      return;
+    }
+
+    const likeUsers = currentComment.like_users || [];
+    if (likeUsers.includes(userLogin.id)) {
+      alert("이미 추천하셨습니다.");
+      return;
+    }
+
     const { data, error } = await supabase
       .from("page")
-      .update({ unlike: unlike + 1 })
+      .update({
+        unlike: unlike + 1,
+        like_users: [...likeUsers, userLogin.id], // Add user ID to like_users
+      })
       .eq("id", initialData.id);
+
     if (error) {
-      console.log("error: ", error);
+      console.log("like count error: ", error.message);
     }
-    console.log(data);
     setUnlike((prev) => prev + 1);
   };
 
@@ -306,21 +359,40 @@ export default function UserBoard({
     setCommentInputVisible((prev) => (prev === commentId ? null : commentId));
   };
 
-  // 대댓글 추천
   const onClickUpLikeComment = async (comment: IBoardComment) => {
     if (userLogin === null) {
       alert("로그인 후 이용 가능합니다.");
       return;
     }
-    console.log("comment: ", comment);
 
-    const { data, error } = await supabase
+    const { data: currentComment, error: fetchError } = await supabase
       .from("comment")
-      .update({ like: comment.like + 1 })
+      .select("like_users")
+      .eq("id", comment.id)
+      .single();
+
+    if (fetchError) {
+      console.error("Error fetching comment:", fetchError.message);
+      return;
+    }
+
+    const likeUsers = currentComment.like_users || [];
+    if (likeUsers.includes(userLogin.id)) {
+      alert("이미 추천하셨습니다.");
+      return;
+    }
+
+    const { error: updateError } = await supabase
+      .from("comment")
+      .update({
+        like: comment.like + 1,
+        like_users: [...likeUsers, userLogin.id],
+      })
       .eq("id", comment.id);
 
-    if (error) {
-      console.log("like count error: ", error.message);
+    if (updateError) {
+      console.error("Error updating like:", updateError.message);
+      return;
     }
 
     setLikeComment((prev) =>
@@ -335,18 +407,39 @@ export default function UserBoard({
       alert("로그인 후 이용 가능합니다.");
       return;
     }
-    console.log("comment: ", comment);
 
-    const { data, error } = await supabase
+    const { data: currentComment, error: fetchError } = await supabase
       .from("comment")
-      .update({ unlike: comment.unlike + 1 })
-      .eq("id", comment.id);
+      .select("like_users")
+      .eq("id", comment.id)
+      .single();
 
-    if (error) {
-      console.log("like count error: ", error.message);
+    if (fetchError) {
+      console.error("Error fetching comment:", fetchError.message);
+      return;
     }
 
-    setUnlikeComment((prev) =>
+    const likeUsers = currentComment.like_users || [];
+    if (likeUsers.includes(userLogin.id)) {
+      alert("이미 추천하셨습니다.");
+      return;
+    }
+
+    const { error: updateError } = await supabase
+      .from("comment")
+      .update({
+        unlike: comment.unlike + 1,
+        like_users: [...likeUsers, userLogin.id],
+      })
+      .eq("id", comment.id);
+
+    if (updateError) {
+      console.error("Error updating like:", updateError.message);
+      return;
+    }
+
+    // Update local state
+    setLikeComment((prev) =>
       prev.map((el) =>
         el.id === comment.id ? { ...el, unlike: el.unlike + 1 } : el
       )
@@ -557,7 +650,10 @@ export default function UserBoard({
                         onClick={() => onClickUpLikeComment(el)}
                       />
                       <S.CommentLikeCount>
-                        {likeComment[index].like - unlikeComment[index].unlike}
+                        {Number(
+                          likeComment[index]?.like -
+                            unlikeComment[index]?.unlike
+                        ) ?? 0}
                       </S.CommentLikeCount>
                       <S.CommentLikeDownButton
                         onClick={() => onClickDownLikeComment(el)}
@@ -717,7 +813,7 @@ export const getServerSideProps = async (
   const boardId = String(context.query.boardId);
 
   const { data } = await fetchBoard(boardId);
-  const { data: dataComment } = await fetchBoardComment(boardId);
+  const { data: dataComment } = await fetchBoardComment(boardId, "latest");
   const { data: reply } = await fetchReply(boardId);
 
   return {

@@ -8,6 +8,7 @@ export interface IBoardComment {
   body: string;
   like: number;
   unlike: number;
+  like_users: string;
   user_id: {
     id: string;
     name: string;
@@ -17,15 +18,23 @@ export interface IBoardComment {
 }
 
 export const fetchBoardComment = async (
-  boardId: string
+  boardId: string,
+  opt: string
 ): Promise<{ data: IBoardComment[] }> => {
   const supabase = createClient();
 
   let dataQuery = supabase
     .from("comment")
     .select("*, user_id:users(id, name, email, picture)")
-    .eq("board_id", boardId)
-    .order("created_at", { ascending: false });
+    .eq("board_id", boardId);
+
+  if (opt === "popular") {
+    dataQuery = dataQuery
+      .order("like", { ascending: false })
+      .order("created_at", { ascending: false });
+  } else {
+    dataQuery = dataQuery.order("created_at", { ascending: false });
+  }
 
   const { data, error } = await dataQuery;
 
@@ -33,7 +42,6 @@ export const fetchBoardComment = async (
     console.error("Error fetching data:", error);
     return { data: [] };
   }
-
   const transformedData: IBoardComment[] = data.map((board) => ({
     ...board,
     created_at: getRelativeTime(board.created_at),
@@ -41,33 +49,3 @@ export const fetchBoardComment = async (
 
   return { data: transformedData };
 };
-
-// export interface IBoardComments {
-//   id: number;
-//   board_id: number;
-// }
-
-// export const fetchBoardComments = async (): Promise<{
-//   data: IBoardComments[];
-// }> => {
-//   const supabase = createClient();
-
-//   let dataQuery = supabase
-//     .from("comment")
-//     .select("id, board_id")
-//     .order("created_at", { ascending: false });
-
-//   const { data, error } = await dataQuery;
-
-//   if (error) {
-//     console.error("Error fetching data:", error);
-//     return { data: [] };
-//   }
-
-//   // const transformedData: IBoardComment[] = data.map((board) => ({
-//   //   ...board,
-//   //   created_at: getRelativeTime(board.created_at),
-//   // }));
-
-//   return { data };
-// };
