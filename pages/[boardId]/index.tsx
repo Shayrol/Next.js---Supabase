@@ -6,13 +6,7 @@ import { GetServerSidePropsContext } from "next";
 import { useRouter } from "next/router";
 import * as S from "../../styles/userBoard.styles";
 import dynamic from "next/dynamic";
-import {
-  ChangeEvent,
-  Dispatch,
-  SetStateAction,
-  useEffect,
-  useState,
-} from "react";
+import { ChangeEvent, Dispatch, SetStateAction, useState } from "react";
 import { User } from "@supabase/supabase-js";
 import Link from "next/link";
 import { createClient } from "@/utils/supabase/component";
@@ -88,8 +82,6 @@ export default function UserBoard({
   const [unlikeComment, setUnlikeComment] =
     useState<IBoardComment[]>(dataComment);
 
-  console.log("likeComment", likeComment[0].like);
-
   // 댓글 최신순, 인기순 선택 옵션
   const [selectedOption, setSelectedOption] = useState<"popular" | "latest">(
     "latest"
@@ -98,11 +90,6 @@ export default function UserBoard({
   const boardUserId = String(initialData.user_id);
   const loginUserId = String(userLogin?.id);
   const supabase = createClient();
-
-  // console.log("initialData: ", initialData);
-  // console.log("dataComment: ", dataComment);
-
-  const color = "#cdcdcd";
 
   // 댓글 useForm
   const { register, handleSubmit, trigger, formState, reset } = useForm<IForm>({
@@ -169,6 +156,8 @@ export default function UserBoard({
       selectedOption
     );
     setComment(refetchComment.data);
+    setLikeComment(refetchComment.data);
+    setUnlikeComment(refetchComment.data);
     reset(); // 텍스트 입력 초기화
     setInputCount(0);
   };
@@ -189,6 +178,7 @@ export default function UserBoard({
     );
     setComment(data);
     setLikeComment(data);
+    setUnlikeComment(data);
   };
 
   // 게시글 삭제
@@ -233,10 +223,12 @@ export default function UserBoard({
       }
 
       setComment(data);
+      setLikeComment(data);
+      setUnlikeComment(data);
     }
   };
 
-  // 추천
+  // 추천 - 게시물
   const onClickUpLike = async () => {
     if (userLogin === null) {
       alert("로그인 후 이용 가능합니다.");
@@ -277,7 +269,7 @@ export default function UserBoard({
     setLike((prev) => prev + 1);
   };
 
-  // 비추천
+  // 비추천 - 게시물
   const onClickDownLike = async () => {
     if (userLogin === null) {
       alert("로그인 후 이용 가능합니다.");
@@ -439,7 +431,7 @@ export default function UserBoard({
     }
 
     // Update local state
-    setLikeComment((prev) =>
+    setUnlikeComment((prev) =>
       prev.map((el) =>
         el.id === comment.id ? { ...el, unlike: el.unlike + 1 } : el
       )
@@ -654,6 +646,7 @@ export default function UserBoard({
                           likeComment[index]?.like -
                             unlikeComment[index]?.unlike
                         ) ?? 0}
+                        {/* {Number(el.like - el.unlike) ?? 0} */}
                       </S.CommentLikeCount>
                       <S.CommentLikeDownButton
                         onClick={() => onClickDownLikeComment(el)}
@@ -824,43 +817,3 @@ export const getServerSideProps = async (
     },
   };
 };
-
-// {comment.map((el) => (
-//   <S.CommentListInfoWrap
-//     key={el.id}
-//     // isAuthor={boardUserId === el.user_id}
-//     isAuthor={boardUserId === String(el.user_id.id)}
-//   >
-//     <S.CommentLikeWrap>
-//       <S.CommentLikeUpButton />
-//       <S.CommentLikeCount>0</S.CommentLikeCount>
-//       <S.CommentLikeDownButton />
-//     </S.CommentLikeWrap>
-//     <S.CommentInfoWrap>
-//       <S.CommentUserInfoWrap>
-//         {/* <S.User isAuthor={boardUserId === el.user_id}> */}
-//         <S.User isAuthor={boardUserId === String(el.user_id.id)}>
-//           {boardUserId === el.user_id.id
-//             ? "작성자"
-//             : el.user_id.name}
-//         </S.User>
-//         <S.CommentCreated>{el.created_at}</S.CommentCreated>
-//       </S.CommentUserInfoWrap>
-//       <S.CommentBody>{el.body}</S.CommentBody>
-//       <S.ReplyWrap>
-//         {loginUserId === el.user_id.id ? (
-//           <S.DeleteComment
-//             onClick={() => onClickDeleteComment(el.id)}
-//           >
-//             삭제
-//           </S.DeleteComment>
-//         ) : (
-//           <></>
-//         )}
-//         <S.Report>신고</S.Report>
-//         <S.Reply>답글 쓰기</S.Reply>
-//       </S.ReplyWrap>
-//     </S.CommentInfoWrap>
-//     <div>{}</div>
-//   </S.CommentListInfoWrap>
-// ))}

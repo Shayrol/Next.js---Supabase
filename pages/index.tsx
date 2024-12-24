@@ -1,20 +1,11 @@
-import { ChangeEvent, KeyboardEvent, useEffect, useRef, useState } from "react";
+import { KeyboardEvent, useEffect, useRef, useState } from "react";
 import * as S from "../styles/userBoards.styles";
 import { GetServerSidePropsContext } from "next";
-import {
-  fetchBoards,
-  fetchBoardsPopular,
-  IBoards,
-} from "@/src/components/commons/hooks/reactQuery/query/boards";
+import { IBoards } from "@/src/components/commons/hooks/reactQuery/query/boards";
 import { useRouter } from "next/router";
 import Pagination01 from "@/src/components/pagination/01/pagination";
 import Link from "next/link";
 import { fetchSearchBoards } from "@/src/components/commons/hooks/reactQuery/query/searchBoards";
-import { createClient } from "@/utils/supabase/component";
-// import {
-//   fetchBoardComments,
-//   IBoardComments,
-// } from "@/src/components/commons/hooks/reactQuery/query/boardComment";
 
 interface ISSRProps {
   initialData: IBoards[];
@@ -23,7 +14,7 @@ interface ISSRProps {
     metaTag: string;
     metaPage: number;
   };
-  // commentData: IBoardComments[];
+  optData: boolean;
 }
 
 interface IBoardsProps {
@@ -52,6 +43,7 @@ export default function UserBoards({
   initialData,
   count,
   metaData,
+  optData,
 }: // commentData,
 ISSRProps): JSX.Element {
   const [data, setData] = useState<IBoardsProps>({
@@ -64,15 +56,14 @@ ISSRProps): JSX.Element {
   const [keywordState, setKeywordState] = useState<
     string | string[] | undefined
   >(undefined);
-  const [boardsOpt, setBoardOpt] = useState(false);
-
-  const supabase = createClient();
+  const [boardsOpt, setBoardOpt] = useState(optData);
 
   const router = useRouter();
   const isFirstMountPage = useRef(true);
   const isFirstMountTag = useRef(true);
   const page = Number(router.query.page) || 1;
   const tag = router.query.tag || "전체";
+  const opt = router.query.opt || "all";
   const Keyword = router.query.keyword || undefined;
   const limit = 10;
 
@@ -93,8 +84,7 @@ ISSRProps): JSX.Element {
     if (!router.query.page) return;
 
     const resultData = async () => {
-      // const result = await fetchBoards(page - 1, tag);
-      const result = await fetchSearchBoards(page - 1, tag, keywordState);
+      const result = await fetchSearchBoards(page - 1, tag, keywordState, opt);
       setData({ count: result.count, initialData: result.data });
     };
     resultData();
@@ -110,10 +100,11 @@ ISSRProps): JSX.Element {
     if (!router.query.tag) return;
 
     const resultData = async () => {
-      const result = await fetchBoards(0, tag);
+      const result = await fetchSearchBoards(0, tag, keywordState, opt);
       setData({ count: result.count, initialData: result.data });
     };
     resultData();
+    setBoardOpt(false);
   }, [router.query.tag]);
 
   // 켜뮤니티 사이드 탭 - 전체, 자유, 유머, 질문
@@ -131,8 +122,6 @@ ISSRProps): JSX.Element {
     );
   };
 
-  const color = "#a3a3a3";
-
   // 태그 옵션
   const onClickToggle = () => {
     setIsOpen((prev) => !prev);
@@ -146,7 +135,7 @@ ISSRProps): JSX.Element {
 
   // 검색
   const onClickSearch = async () => {
-    const result = await fetchSearchBoards(0, tag, keywordState);
+    const result = await fetchSearchBoards(0, tag, keywordState, opt);
     setData({ count: result.count, initialData: result.data });
 
     // 현재 queryString에서 page를 제거
@@ -169,19 +158,37 @@ ISSRProps): JSX.Element {
     }
   };
 
-  // 게시물 리스트 옵션
+  // 최신순
   const onClickAll = async () => {
-    const result = await fetchBoards(0, router.query.tag ?? "전체");
+    const result = await fetchSearchBoards(0, tag, keywordState, "all");
 
     setData({ count: result.count, initialData: result.data });
     setBoardOpt(false);
+
+    void router.push(
+      {
+        pathname: router.pathname,
+        query: { tag, opt: "all" },
+      },
+      undefined,
+      { shallow: true }
+    );
   };
 
+  // 인기순
   const onClickPopular = async () => {
-    const result = await fetchBoardsPopular(0, router.query.tag ?? "전체");
-
+    const result = await fetchSearchBoards(0, tag, keywordState, "popular");
     setData({ count: result.count, initialData: result.data });
     setBoardOpt(true);
+
+    void router.push(
+      {
+        pathname: router.pathname,
+        query: { tag, opt: "popular" },
+      },
+      undefined,
+      { shallow: true }
+    );
   };
 
   return (
@@ -330,16 +337,14 @@ ISSRProps): JSX.Element {
 export const getServerSideProps = async (
   context: GetServerSidePropsContext
 ) => {
-  // 데이터 요청은 page 0번 부터 가져오고 pagination은 1번 부터 가져와서 이렇게 해줘야 했음..
   const page =
     Number(context.query.page) === 0 ? 0 : Number(context.query.page) - 1 || 0;
 
   const tag = context.query.tag || "전체";
   const keyword = context.query.keyword || undefined;
+  const opt = context.query.opt || "all";
 
-  // const { data, count } = await fetchBoards(page, tag);
-  const { data, count } = await fetchSearchBoards(page, tag, keyword);
-  // const { data: commentData } = await fetchBoardComments();
+  const { data, count } = await fetchSearchBoards(page, tag, keyword, opt);
 
   const metaData = {
     metaTag: tag,
@@ -350,11 +355,7 @@ export const getServerSideProps = async (
       initialData: data || [],
       count: count || null,
       metaData: metaData,
-      // commentData,
+      optData: opt === "all" ? false : true,
     },
   };
 };
-
-// 최신, 인기순 추가하기
-// 댓글 추천 추가
-// 대댓글 추가
