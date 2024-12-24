@@ -1,3 +1,10 @@
+## 게시물 결과 - 진행중
+![2024-12-2413-27-03-ezgif com-video-to-gif-converter](https://github.com/user-attachments/assets/8a7e368f-c4bf-4ba0-a390-648af09fbf38) <br>
+
+
+
+
+
 # 11/13 <br>
 Next.js 에서 Supabase 사용하기 <br>
 기존 파이어베이스보다 다루기 쉬운듯... <br>
