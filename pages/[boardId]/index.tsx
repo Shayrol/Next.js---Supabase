@@ -6,7 +6,13 @@ import { GetServerSidePropsContext } from "next";
 import { useRouter } from "next/router";
 import * as S from "../../styles/userBoard.styles";
 import dynamic from "next/dynamic";
-import { ChangeEvent, Dispatch, SetStateAction, useState } from "react";
+import {
+  ChangeEvent,
+  Dispatch,
+  SetStateAction,
+  useEffect,
+  useState,
+} from "react";
 import { User } from "@supabase/supabase-js";
 import Link from "next/link";
 import { createClient } from "@/utils/supabase/component";
@@ -511,6 +517,24 @@ export default function UserBoard({
     }
   };
 
+  useEffect(() => {
+    const result = async () => {
+      const { data, error } = await supabase
+        .from("page")
+        .update({ views: initialData.views + 1 })
+        .eq("id", router.query.boardId);
+
+      if (error) {
+        return new Response(JSON.stringify({ error: error.message }), {
+          status: 400,
+        });
+      }
+      return new Response(JSON.stringify({ data }), { status: 200 });
+    };
+
+    result();
+  }, []);
+
   return (
     <S.Wrap>
       {/* <Head> */}
@@ -553,7 +577,7 @@ export default function UserBoard({
                   <S.Name>{initialData.user.name}</S.Name>
                 </S.UserInfoWrap>
                 <S.MetaInfoWrap>
-                  <S.ViewCount>조회수: {initialData.views}</S.ViewCount>
+                  <S.ViewCount>조회수: {initialData.views + 1}</S.ViewCount>
                   <S.CommentCount>댓글: {comment.length}</S.CommentCount>
                   <S.LikeCount>추천: {initialData.like}</S.LikeCount>
                 </S.MetaInfoWrap>
@@ -800,20 +824,44 @@ export default function UserBoard({
   );
 }
 
+// export const getServerSideProps = async (
+//   context: GetServerSidePropsContext
+// ) => {
+//   const boardId = String(context.query.boardId);
+
+//   const { data } = await fetchBoard(boardId);
+//   const { data: dataComment } = await fetchBoardComment(boardId, "latest");
+//   const { data: reply } = await fetchReply(boardId);
+
+//   return {
+//     props: {
+//       initialData: data,
+//       dataComment,
+//       reply,
+//     },
+//   };
+// };
+
 export const getServerSideProps = async (
   context: GetServerSidePropsContext
 ) => {
   const boardId = String(context.query.boardId);
 
-  const { data } = await fetchBoard(boardId);
-  const { data: dataComment } = await fetchBoardComment(boardId, "latest");
-  const { data: reply } = await fetchReply(boardId);
+  const results = await Promise.allSettled([
+    fetchBoard(boardId),
+    fetchBoardComment(boardId, "latest"),
+    fetchReply(boardId),
+  ]);
+
+  const [data, dataComment, reply] = results.map((result) =>
+    result.status === "fulfilled" ? result.value.data : null
+  );
 
   return {
     props: {
       initialData: data,
       dataComment,
-      reply: reply,
+      reply,
     },
   };
 };

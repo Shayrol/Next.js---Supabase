@@ -162,6 +162,7 @@ ISSRProps): JSX.Element {
   const onClickAll = async () => {
     const result = await fetchSearchBoards(0, tag, keywordState, "all");
 
+    console.log("검색 후: ", result);
     setData({ count: result.count, initialData: result.data });
     setBoardOpt(false);
 
@@ -178,6 +179,8 @@ ISSRProps): JSX.Element {
   // 인기순
   const onClickPopular = async () => {
     const result = await fetchSearchBoards(0, tag, keywordState, "popular");
+
+    console.log("검색 후: ", result);
     setData({ count: result.count, initialData: result.data });
     setBoardOpt(true);
 
@@ -293,7 +296,7 @@ ISSRProps): JSX.Element {
                         .split(SECRET)
                         .map((el, index) => (
                           <S.TextToken
-                            isMatched={keywordState === el}
+                            isMatched={router.query.keyword === el}
                             key={el + index}
                           >
                             {el}

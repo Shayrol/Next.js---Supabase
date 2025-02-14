@@ -79,47 +79,6 @@ const ToastEditor = ({
     return publicUrl;
   };
 
-  // const handleChange = () => {
-  //   const editorInstance = editorRef.current?.getInstance();
-  //   const editorContent = DOMPurify.sanitize(editorInstance?.getHTML());
-  //   const cleanContent =
-  //     editorContent.trim() === "<p><br></p>" ? "" : editorContent;
-
-  //   console.log("editorInstance: ", editorInstance);
-  //   console.log("editorContent: ", editorContent);
-  //   console.log("cleanContent: ", cleanContent);
-
-  //   setValue("body", cleanContent);
-  //   void trigger("body");
-
-  //   // 이미지 후크 추가
-  //   editorInstance.addHook(
-  //     "addImageBlobHook",
-  //     async (blob: File, callback: (url: string) => void) => {
-  //       try {
-  //         // 이미지를 Supabase에 업로드하고 URL 받기
-  //         const uploadedImageUrl = await uploadImageToSupabase(blob);
-
-  //         if (uploadedImageUrl) {
-  //           // 업로드된 이미지 URL로 에디터에 삽입
-  //           callback(uploadedImageUrl);
-
-  //           // 선택적: 업로드된 이미지 파일 상태에 추가
-  //           // setImages((prev) => [...prev, blob]);
-  //         }
-  //       } catch (error) {
-  //         console.error("Image upload failed", error);
-  //         // 업로드 실패 시 기본 동작
-  //         const reader = new FileReader();
-  //         reader.onload = () => {
-  //           callback(reader.result as string);
-  //         };
-  //         reader.readAsDataURL(blob);
-  //       }
-  //     }
-  //   );
-  // };
-
   const handleChange = () => {
     const editorInstance = editorRef.current?.getInstance();
     const editorContent = DOMPurify.sanitize(editorInstance?.getHTML());
@@ -157,7 +116,7 @@ const ToastEditor = ({
         }
       }
     );
-  }, []); // 빈 배열로 초기화 시점에 한 번만 실행
+  }, []);
 
   return (
     <>
@@ -186,45 +145,3 @@ const ToastEditor = ({
 };
 
 export default ToastEditor;
-
-// Tlqkf 이미지 어케하는데?
-
-// const handleChange = () => {
-//   const editorInstance = editorRef.current?.getInstance();
-//   const editorContent = DOMPurify.sanitize(editorInstance?.getHTML());
-//   // markdown 형식으로 저장됨 => <p>ddd</p> 가 아닌 ddd으로 단 빈 공간에 줄 바꿈만 하면 <br>
-//   const contentMark = editorInstance.getMarkdown();
-
-//   const cleanContent =
-//     editorContent.trim() === "<p><br></p>" ? "" : editorContent;
-
-//   console.log("editorContent: ", editorContent);
-//   console.log("cleanContent: ", cleanContent);
-//   console.log("contentMark: ", contentMark);
-
-//   setValue("body", cleanContent);
-//   void trigger("body");
-
-//   // ddddddddddddddddddddddddddddddddddddddddddddddddddddd
-
-//   if (editorInstance) {
-//     editorInstance.addHook(
-//       "addImageBlobHook",
-//       (blob: File, callback: (url: string) => void) => {
-//         // blob을 base64로 되 돌리는 작업
-//         const reader = new FileReader();
-
-//         // Blob 데이터를 Base64로 변환
-//         reader.onload = async () => {
-//           const base64Image = reader.result as string;
-//           callback(base64Image); // 에디터에 이미지 삽입
-//         };
-
-//         reader.readAsDataURL(blob); // Blob -> Base64 변환 시작
-//       }
-//     );
-//   }
-//   return () => {
-//     editorInstance?.removeHook("addImageBlobHook");
-//   };
-// };
