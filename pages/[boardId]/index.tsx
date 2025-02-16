@@ -6,13 +6,7 @@ import { GetServerSidePropsContext } from "next";
 import { useRouter } from "next/router";
 import * as S from "../../styles/userBoard.styles";
 import dynamic from "next/dynamic";
-import {
-  ChangeEvent,
-  Dispatch,
-  SetStateAction,
-  useEffect,
-  useState,
-} from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { User } from "@supabase/supabase-js";
 import Link from "next/link";
 import { createClient } from "@/utils/supabase/component";
@@ -20,13 +14,6 @@ import {
   fetchBoardComment,
   IBoardComment,
 } from "@/src/components/commons/hooks/reactQuery/query/boardComment";
-import { useForm } from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup";
-import {
-  schemaComment,
-  schemaCommentReply,
-  schemaReply,
-} from "@/src/components/commons/hooks/yup/validation";
 import {
   fetchReply,
   IReply,
@@ -37,7 +24,6 @@ interface ISSRProps {
   initialData: IBoard;
   dataComment: IBoardComment[];
   userLogin: User | null;
-  setUserLogin: Dispatch<SetStateAction<User | null>>;
   reply: IReply[];
 }
 
@@ -67,126 +53,13 @@ export default function UserBoard({
   reply,
 }: ISSRProps): JSX.Element {
   const router = useRouter();
-  const [comment, setComment] = useState<IBoardComment[]>(dataComment);
-  const [replyComment, setReplyComment] = useState<IReply[]>(reply);
-  const [commentInputVisible, setCommentInputVisible] = useState<number | null>(
-    null
-  );
-  const [replyInputVisible, setReplyInputVisible] = useState<number | null>(
-    null
-  );
-  // 대댓글의 대댓글 위한 대댓글의 id
-  const [commentReplyId, setCommentReplyId] = useState<number | null>(null);
-
-  const [inputCount, setInputCount] = useState(0);
-  const [inputCountComment, setInputCountComment] = useState(0);
-  const [inputCountCommentReply, setInputCountCommentReply] = useState(0);
+  const [comment] = useState<IBoardComment[]>(dataComment);
   const [like, setLike] = useState<number>(initialData.like);
   const [unlike, setUnlike] = useState<number>(initialData.unlike);
-
-  // 댓글 추천 데이터
-  const [likeComment, setLikeComment] = useState<IBoardComment[]>(dataComment);
-  const [unlikeComment, setUnlikeComment] =
-    useState<IBoardComment[]>(dataComment);
-
-  // 댓글 최신순, 인기순 선택 옵션
-  const [selectedOption, setSelectedOption] = useState<"popular" | "latest">(
-    "latest"
-  );
 
   const boardUserId = String(initialData.user_id);
   const loginUserId = String(userLogin?.id);
   const supabase = createClient();
-
-  // 댓글 useForm
-  const { register, handleSubmit, trigger, formState, reset } = useForm<IForm>({
-    resolver: yupResolver(schemaComment),
-    mode: "onChange",
-  });
-
-  // 대댓글 useForm
-  const {
-    register: registerReply,
-    handleSubmit: handleSubmitReply,
-    formState: formStateReply,
-    reset: resetReply,
-  } = useForm({
-    resolver: yupResolver(schemaReply), // 대댓글 유효성 검사
-    mode: "onChange",
-  });
-
-  // 대댓글의 대댓글 useForm
-  const {
-    register: registerCommentReply,
-    handleSubmit: handleSubmitCommentReply,
-    formState: formStateCommentReply,
-    reset: resetCommentReply,
-  } = useForm({
-    resolver: yupResolver(schemaCommentReply), // 대댓글 유효성 검사
-    mode: "onChange",
-  });
-
-  // 댓글
-  // const onClickSubmit = async (data: IForm) => {
-  //   if (userLogin === null) {
-  //     alert("로그인 후 이용 가능합니다.");
-  //   }
-
-  //   const { body } = data;
-
-  //   const { data: dataComment, error: commentError } = await supabase
-  //     .from("comment")
-  //     .insert([{ board_id: router.query.boardId, body }]);
-
-  //   if (commentError) {
-  //     console.log("댓글 저장 실패: ", commentError.message);
-  //     return;
-  //   }
-
-  //   // const comment_count = comment.length;
-
-  //   const { data: updateData, error: updateError } = await supabase
-  //     .from("page")
-  //     .update({ comment_count: comment_count + 1 })
-  //     .eq("id", initialData.id);
-
-  //   if (updateError) {
-  //     console.log(
-  //       "page comment count 추가 업데이트 실패: ",
-  //       updateError.message
-  //     );
-  //     return;
-  //   }
-
-  //   const refetchComment = await fetchBoardComment(
-  //     String(router.query.boardId),
-  //     selectedOption
-  //   );
-  //   setComment(refetchComment.data);
-  //   setLikeComment(refetchComment.data);
-  //   setUnlikeComment(refetchComment.data);
-  //   reset(); // 텍스트 입력 초기화
-  //   setInputCount(0);
-  // };
-
-  // 댓글 입력 수
-  const onTextareaHandler = (e: ChangeEvent<HTMLTextAreaElement>) => {
-    setInputCount(
-      e.target.value.replace(/[\0-\x7f]|([0-\u07ff]|(.))/g, "$&$1$2").length
-    );
-  };
-
-  // 댓글 인기, 최신순
-  const handleOptionClick = async (option: "popular" | "latest") => {
-    setSelectedOption(option);
-    const { data } = await fetchBoardComment(
-      String(router.query.boardId),
-      option
-    );
-    setComment(data);
-    setLikeComment(data);
-    setUnlikeComment(data);
-  };
 
   // 게시글 삭제
   const onClickDeleteBoard = async () => {
@@ -199,39 +72,6 @@ export default function UserBoard({
       console.log("게시글 삭제 실패: ", error);
     } else {
       router.push("/");
-    }
-  };
-
-  // 댓글 삭제
-  const onClickDeleteComment = async (id: number) => {
-    const { error } = await supabase.from("comment").delete().eq("id", id);
-
-    if (error) {
-      console.log("게시글 삭제 실패: ", error);
-    } else {
-      const { data } = await fetchBoardComment(
-        String(router.query.boardId),
-        selectedOption
-      );
-
-      const comment_count = comment.length;
-
-      const { data: updateData, error: updateError } = await supabase
-        .from("page")
-        .update({ comment_count: comment_count - 1 })
-        .eq("id", initialData.id);
-
-      if (updateError) {
-        console.log(
-          "page comment count 삭제 업데이트 실패: ",
-          updateError.message
-        );
-        return;
-      }
-
-      setComment(data);
-      setLikeComment(data);
-      setUnlikeComment(data);
     }
   };
 
@@ -312,210 +152,6 @@ export default function UserBoard({
       console.log("like count error: ", error.message);
     }
     setUnlike((prev) => prev + 1);
-  };
-
-  // 대댓글
-  const onClickSubmitComment = async (data: IFormReply) => {
-    if (userLogin === null) {
-      alert("로그인 후 이용 가능합니다.");
-    }
-
-    const { bodyReply } = data;
-
-    const { data: dataComment, error: commentError } = await supabase
-      .from("reply")
-      .insert([
-        {
-          board_id: router.query.boardId,
-          comment_id: commentInputVisible,
-          body: bodyReply,
-        },
-      ]);
-
-    if (commentError) {
-      console.log("대댓글 저장 실패: ", commentError.message);
-      return;
-    }
-
-    const BoardId = String(router.query.boardId);
-
-    const { data: reply } = await fetchReply(BoardId);
-    setReplyComment(reply);
-    resetReply(); // 텍스트 입력 초기화
-    setInputCountComment(0);
-    setCommentInputVisible(null);
-  };
-
-  // 대댓글 입력 수
-  const onTextareaHandlerComment = (e: ChangeEvent<HTMLTextAreaElement>) => {
-    setInputCountComment(
-      e.target.value.replace(/[\0-\x7f]|([0-\u07ff]|(.))/g, "$&$1$2").length
-    );
-  };
-
-  // 대댓글 입력창 띄우기
-  const onReplyClick = (commentId: number) => {
-    setCommentInputVisible((prev) => (prev === commentId ? null : commentId));
-  };
-
-  const onClickUpLikeComment = async (comment: IBoardComment) => {
-    if (userLogin === null) {
-      alert("로그인 후 이용 가능합니다.");
-      return;
-    }
-
-    const { data: currentComment, error: fetchError } = await supabase
-      .from("comment")
-      .select("like_users")
-      .eq("id", comment.id)
-      .single();
-
-    if (fetchError) {
-      console.error("Error fetching comment:", fetchError.message);
-      return;
-    }
-
-    const likeUsers = currentComment.like_users || [];
-    if (likeUsers.includes(userLogin.id)) {
-      alert("이미 추천하셨습니다.");
-      return;
-    }
-
-    const { error: updateError } = await supabase
-      .from("comment")
-      .update({
-        like: comment.like + 1,
-        like_users: [...likeUsers, userLogin.id],
-      })
-      .eq("id", comment.id);
-
-    if (updateError) {
-      console.error("Error updating like:", updateError.message);
-      return;
-    }
-
-    setLikeComment((prev) =>
-      prev.map((el) =>
-        el.id === comment.id ? { ...el, like: el.like + 1 } : el
-      )
-    );
-  };
-
-  const onClickDownLikeComment = async (comment: IBoardComment) => {
-    if (userLogin === null) {
-      alert("로그인 후 이용 가능합니다.");
-      return;
-    }
-
-    const { data: currentComment, error: fetchError } = await supabase
-      .from("comment")
-      .select("like_users")
-      .eq("id", comment.id)
-      .single();
-
-    if (fetchError) {
-      console.error("Error fetching comment:", fetchError.message);
-      return;
-    }
-
-    const likeUsers = currentComment.like_users || [];
-    if (likeUsers.includes(userLogin.id)) {
-      alert("이미 추천하셨습니다.");
-      return;
-    }
-
-    const { error: updateError } = await supabase
-      .from("comment")
-      .update({
-        unlike: comment.unlike + 1,
-        like_users: [...likeUsers, userLogin.id],
-      })
-      .eq("id", comment.id);
-
-    if (updateError) {
-      console.error("Error updating like:", updateError.message);
-      return;
-    }
-
-    // Update local state
-    setUnlikeComment((prev) =>
-      prev.map((el) =>
-        el.id === comment.id ? { ...el, unlike: el.unlike + 1 } : el
-      )
-    );
-  };
-
-  // ✨ 대댓글의 답변 시 실행되는 함수들
-
-  // 대댓글의 댓글 입력창 띄우기
-  const onCommentReplyClick = (reply: IReply) => {
-    setReplyInputVisible((prev) => (prev === reply.id ? null : reply.id));
-    setCommentReplyId((prev) =>
-      prev === reply.comment_id ? null : reply.comment_id
-    );
-    // 답글 쓰기 클릭 시 입력 내용 초기화
-    setInputCountComment(0);
-    resetCommentReply();
-  };
-
-  console.log("commentReplyId: ", commentReplyId);
-  console.log("replyInputVisible: ", replyInputVisible);
-
-  // 대댓글의 댓글
-  const onClickSubmitCommentReply =
-    (reply: IReply) => async (data: IFormCommentReply) => {
-      if (userLogin === null) {
-        alert("로그인 후 이용 가능합니다.");
-        return;
-      }
-
-      const { bodyCommentReply } = data;
-
-      const { data: dataComment, error: commentError } = await supabase
-        .from("reply")
-        .insert([
-          {
-            board_id: router.query.boardId,
-            comment_id: commentReplyId,
-            body: bodyCommentReply,
-            name: reply.user_id.name, // 여기에 reply 값 활용
-          },
-        ]);
-
-      if (commentError) {
-        console.log("대댓글 저장 실패: ", commentError.message);
-        return;
-      }
-
-      const BoardId = String(router.query.boardId);
-
-      const { data: replyComment } = await fetchReply(BoardId);
-      setReplyComment(replyComment);
-      resetCommentReply(); // 텍스트 입력 초기화
-      setInputCountCommentReply(0);
-      setReplyInputVisible(null);
-      setCommentReplyId(null);
-    };
-
-  // 대댓글의 댓글 입력 수
-  const onTextareaHandlerCommentReply = (
-    e: ChangeEvent<HTMLTextAreaElement>
-  ) => {
-    setInputCountComment(
-      e.target.value.replace(/[\0-\x7f]|([0-\u07ff]|(.))/g, "$&$1$2").length
-    );
-  };
-
-  // 대댓글 삭제
-  const onClickDeleteReply = async (id: number) => {
-    const { error } = await supabase.from("reply").delete().eq("id", id);
-    console.log("replyId: ", id);
-    if (error) {
-      console.log("게시글 삭제 실패: ", error);
-    } else {
-      const { data: reply } = await fetchReply(String(router.query.boardId));
-      setReplyComment(reply);
-    }
   };
 
   useEffect(() => {
