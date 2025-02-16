@@ -4,7 +4,7 @@ import {
 } from "@/src/components/commons/hooks/reactQuery/query/board";
 import { GetServerSidePropsContext } from "next";
 import { useRouter } from "next/router";
-import * as S from "../../styles/userBoard.styles";
+import * as S from "../../../styles/userBoard.styles";
 import dynamic from "next/dynamic";
 import {
   ChangeEvent,
@@ -31,7 +31,6 @@ import {
   fetchReply,
   IReply,
 } from "@/src/components/commons/hooks/reactQuery/query/boardCommentReply";
-import CommentList from "@/src/components/boardDetail/CommentList/commentList";
 
 interface ISSRProps {
   initialData: IBoard;
@@ -42,7 +41,7 @@ interface ISSRProps {
 }
 
 const ToastViewer = dynamic(
-  () => import("../../src/components/commons/hooks/Editor/TuiViewer"),
+  () => import("../../../src/components/commons/hooks/Editor/TuiViewer"),
   {
     ssr: false,
   }
@@ -127,47 +126,47 @@ export default function UserBoard({
   });
 
   // 댓글
-  // const onClickSubmit = async (data: IForm) => {
-  //   if (userLogin === null) {
-  //     alert("로그인 후 이용 가능합니다.");
-  //   }
+  const onClickSubmit = async (data: IForm) => {
+    if (userLogin === null) {
+      alert("로그인 후 이용 가능합니다.");
+    }
 
-  //   const { body } = data;
+    const { body } = data;
 
-  //   const { data: dataComment, error: commentError } = await supabase
-  //     .from("comment")
-  //     .insert([{ board_id: router.query.boardId, body }]);
+    const { data: dataComment, error: commentError } = await supabase
+      .from("comment")
+      .insert([{ board_id: router.query.boardId, body }]);
 
-  //   if (commentError) {
-  //     console.log("댓글 저장 실패: ", commentError.message);
-  //     return;
-  //   }
+    if (commentError) {
+      console.log("댓글 저장 실패: ", commentError.message);
+      return;
+    }
 
-  //   // const comment_count = comment.length;
+    const comment_count = comment.length;
 
-  //   const { data: updateData, error: updateError } = await supabase
-  //     .from("page")
-  //     .update({ comment_count: comment_count + 1 })
-  //     .eq("id", initialData.id);
+    const { data: updateData, error: updateError } = await supabase
+      .from("page")
+      .update({ comment_count: comment_count + 1 })
+      .eq("id", initialData.id);
 
-  //   if (updateError) {
-  //     console.log(
-  //       "page comment count 추가 업데이트 실패: ",
-  //       updateError.message
-  //     );
-  //     return;
-  //   }
+    if (updateError) {
+      console.log(
+        "page comment count 추가 업데이트 실패: ",
+        updateError.message
+      );
+      return;
+    }
 
-  //   const refetchComment = await fetchBoardComment(
-  //     String(router.query.boardId),
-  //     selectedOption
-  //   );
-  //   setComment(refetchComment.data);
-  //   setLikeComment(refetchComment.data);
-  //   setUnlikeComment(refetchComment.data);
-  //   reset(); // 텍스트 입력 초기화
-  //   setInputCount(0);
-  // };
+    const refetchComment = await fetchBoardComment(
+      String(router.query.boardId),
+      selectedOption
+    );
+    setComment(refetchComment.data);
+    setLikeComment(refetchComment.data);
+    setUnlikeComment(refetchComment.data);
+    reset(); // 텍스트 입력 초기화
+    setInputCount(0);
+  };
 
   // 댓글 입력 수
   const onTextareaHandler = (e: ChangeEvent<HTMLTextAreaElement>) => {
@@ -611,17 +610,216 @@ export default function UserBoard({
             </S.LikeCountWrap>
           </S.BoardInfoWrap>
         )}
-
-        {/* 댓글, 대댓글 */}
-        <CommentList
-          dataComment={dataComment}
-          userLogin={userLogin}
-          initialData={initialData}
-          reply={reply}
-        />
       </S.BoardWrap>
 
       {/* 게시글 댓글 */}
+      <S.CommentWrap>
+        <S.CommentHeader>
+          <S.CommentHeaderTitle>댓글</S.CommentHeaderTitle>
+          <S.CommentHeaderCount>
+            총<S.Count>{comment.length}</S.Count>개
+          </S.CommentHeaderCount>
+        </S.CommentHeader>
+        <S.TextAreaWrap onSubmit={handleSubmit(onClickSubmit)}>
+          <S.TextArea
+            {...register("body")}
+            onChange={onTextareaHandler}
+            maxLength={1000}
+            placeholder="주제와 무관한 댓글, 타인의 권리를 침해하거나 며예를 훼손하는 게시물은 별도의 통보 없이 제재를 받을 수 있습니다."
+          />
+          <S.TextButtonWrap>
+            <S.TextCount>({inputCount}/1000)</S.TextCount>
+            <S.CommentBtn>작성</S.CommentBtn>
+          </S.TextButtonWrap>
+          <S.Error>{formState.errors.body?.message}</S.Error>
+        </S.TextAreaWrap>
+        {comment.length ? (
+          <S.CommentListWrap>
+            <S.CommentListOpt>
+              <S.ListOptBtn
+                isSelected={selectedOption === "latest"}
+                onClick={() => handleOptionClick("latest")}
+              >
+                최신순
+              </S.ListOptBtn>
+              <S.ListOptBtn
+                isSelected={selectedOption === "popular"}
+                onClick={() => handleOptionClick("popular")}
+              >
+                인기순
+              </S.ListOptBtn>
+            </S.CommentListOpt>
+            {comment.map((el, index) => {
+              // 필터링된 대댓글
+              const filteredReplies = replyComment.filter(
+                (reply) => reply.comment_id === el.id
+              );
+              // console.log("filteredReplies: ", filteredReplies);
+              return (
+                <S.CommentReplyWrap>
+                  <S.CommentListInfoWrap
+                    key={el.id}
+                    isAuthor={boardUserId === String(el.user_id.id)}
+                  >
+                    <S.CommentLikeWrap>
+                      <S.CommentLikeUpButton
+                        onClick={() => onClickUpLikeComment(el)}
+                      />
+                      <S.CommentLikeCount>
+                        {Number(
+                          likeComment[index]?.like -
+                            unlikeComment[index]?.unlike
+                        ) ?? 0}
+                        {/* {Number(el.like - el.unlike) ?? 0} */}
+                      </S.CommentLikeCount>
+                      <S.CommentLikeDownButton
+                        onClick={() => onClickDownLikeComment(el)}
+                      />
+                    </S.CommentLikeWrap>
+                    <S.CommentInfoWrap>
+                      <S.CommentUserInfoWrap>
+                        <S.User
+                          isAuthor={boardUserId === String(el.user_id.id)}
+                        >
+                          {boardUserId === el.user_id.id
+                            ? "작성자"
+                            : el.user_id.name}
+                        </S.User>
+                        <S.CommentCreated>{el.created_at}</S.CommentCreated>
+                      </S.CommentUserInfoWrap>
+                      <S.CommentBody>{el.body}</S.CommentBody>
+                      <S.CommentOptWrap>
+                        {loginUserId === el.user_id.id ? (
+                          <S.DeleteComment
+                            onClick={() => onClickDeleteComment(el.id)}
+                          >
+                            삭제
+                          </S.DeleteComment>
+                        ) : null}
+                        <S.ReportBtn>신고</S.ReportBtn>
+                        <S.ReplyBtn onClick={() => onReplyClick(el.id)}>
+                          답글 쓰기
+                        </S.ReplyBtn>
+                      </S.CommentOptWrap>
+                    </S.CommentInfoWrap>
+                  </S.CommentListInfoWrap>
+
+                  {commentInputVisible === el.id && (
+                    <S.TextAreaWrapCom
+                      onSubmit={handleSubmitReply(onClickSubmitComment)}
+                    >
+                      <S.ReplyIcon>ㄴ</S.ReplyIcon>
+                      <S.TextAreaInfoWrapCom>
+                        <S.TextAreaCom
+                          {...registerReply("bodyReply")}
+                          onChange={onTextareaHandlerComment}
+                          maxLength={1000}
+                          placeholder="주제와 무관한 댓글, 타인의 권리를 침해하거나 며예를 훼손하는 게시물은 별도의 통보 없이 제재를 받을 수 있습니다."
+                        />
+                        <S.TextButtonWrapCom>
+                          <S.TextCountCom>
+                            ({inputCountComment}/1000)
+                          </S.TextCountCom>
+                          <S.CommentBtnCom>작성</S.CommentBtnCom>
+                        </S.TextButtonWrapCom>
+                        <S.Error>{formState.errors.body?.message}</S.Error>
+                      </S.TextAreaInfoWrapCom>
+                    </S.TextAreaWrapCom>
+                  )}
+
+                  {/* 댓글 입력 추가하기 */}
+                  {/* 대댓글 */}
+                  <S.ReplyWrap>
+                    {filteredReplies.map((reply) => (
+                      <div>
+                        <S.ReplyInfoWrap key={reply.id}>
+                          <S.ReplyIcon>ㄴ</S.ReplyIcon>
+                          <S.CommentInfoWrap>
+                            <S.CommentUserInfoWrap>
+                              <S.User
+                                isAuthor={
+                                  boardUserId === String(reply.user_id?.id)
+                                }
+                              >
+                                {boardUserId === String(reply.user_id?.id)
+                                  ? "작성자"
+                                  : reply.user_id?.name}
+                              </S.User>
+                              <S.CommentCreated>
+                                {reply.created_at}
+                              </S.CommentCreated>
+                            </S.CommentUserInfoWrap>
+                            <S.CommentBody>
+                              {/* 대댓글 답변 시 이름 태그 붙음 */}
+                              {reply.name !== null ? (
+                                <S.TagName>
+                                  {initialData.user.name === reply.name
+                                    ? "작성자"
+                                    : reply.name}
+                                </S.TagName>
+                              ) : (
+                                <></>
+                              )}
+                              {reply.body}
+                            </S.CommentBody>
+                            <S.CommentOptWrap>
+                              {loginUserId === String(reply.user_id?.id) ? (
+                                <S.DeleteComment
+                                  onClick={() => onClickDeleteReply(reply.id)}
+                                >
+                                  삭제
+                                </S.DeleteComment>
+                              ) : null}
+                              <S.ReportBtn>신고</S.ReportBtn>
+                              <S.ReplyBtn
+                                onClick={() => onCommentReplyClick(reply)}
+                              >
+                                답글 쓰기
+                              </S.ReplyBtn>
+                            </S.CommentOptWrap>
+                          </S.CommentInfoWrap>
+                          {/* 댓글 입력 추가하기 */}
+                        </S.ReplyInfoWrap>
+                        {replyInputVisible === reply.id && (
+                          <S.TextAreaWrapCom
+                            onSubmit={handleSubmitCommentReply(
+                              onClickSubmitCommentReply(reply)
+                            )}
+                          >
+                            <S.ReplyIcon>ㄴ</S.ReplyIcon>
+                            <S.TextAreaInfoWrapCom>
+                              <S.TextAreaCom
+                                {...registerCommentReply("bodyCommentReply")}
+                                onChange={onTextareaHandlerCommentReply}
+                                maxLength={1000}
+                                placeholder="주제와 무관한 댓글, 타인의 권리를 침해하거나 며예를 훼손하는 게시물은 별도의 통보 없이 제재를 받을 수 있습니다."
+                              />
+                              <S.TextButtonWrapCom>
+                                <S.TextCountCom>
+                                  ({inputCountCommentReply}/1000)
+                                </S.TextCountCom>
+                                <S.CommentBtnCom>작성</S.CommentBtnCom>
+                              </S.TextButtonWrapCom>
+                              <S.Error>
+                                {formState.errors.body?.message}
+                              </S.Error>
+                            </S.TextAreaInfoWrapCom>
+                          </S.TextAreaWrapCom>
+                        )}
+                      </div>
+                    ))}
+                  </S.ReplyWrap>
+                </S.CommentReplyWrap>
+              );
+            })}
+          </S.CommentListWrap>
+        ) : (
+          <S.NoneComment>
+            <S.NoneCommentImg src="/images/logo/comment/message.png" />
+            <S.NoneCommentText>등록된 댓글이 없습니다.</S.NoneCommentText>
+          </S.NoneComment>
+        )}
+      </S.CommentWrap>
     </S.Wrap>
   );
 }
